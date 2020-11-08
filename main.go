@@ -68,6 +68,10 @@ func main() {
 	program := initOpenGL()
 
 	cells := makeCells()
+
+	// glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+	window.SetInputMode(glfw.StickyKeysMode, glfw.True)
+
 	for !window.ShouldClose() {
 		t := time.Now()
 
@@ -80,6 +84,11 @@ func main() {
 		draw(cells, window, program)
 
 		time.Sleep(time.Second/time.Duration(fps) - time.Since(t))
+
+		key := window.GetKey(glfw.KeyEscape)
+		if key == glfw.Press {
+			break
+		}
 	}
 }
 
