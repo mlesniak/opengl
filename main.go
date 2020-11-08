@@ -13,6 +13,9 @@ import (
 const (
 	width  = 500
 	height = 500
+
+	rows    = 10
+	columns = 10
 )
 
 var (
@@ -41,6 +44,13 @@ var (
     }` + "\x00"
 )
 
+type cell struct {
+	drawable uint32
+
+	x int
+	y int
+}
+
 func main() {
 	runtime.LockOSThread()
 
@@ -49,9 +59,10 @@ func main() {
 
 	program := initOpenGL()
 
-	vao := makeVAO(square)
+	//vao := makeVAO(square)
+	cells := makeCells()
 	for !window.ShouldClose() {
-		draw(vao, window, program)
+		draw(cells, window, program)
 	}
 }
 
@@ -70,12 +81,15 @@ func makeVAO(points []float32) uint32 {
 	return vao
 }
 
-func draw(vao uint32, window *glfw.Window, program uint32) {
+func draw(cells [][]*cell, window *glfw.Window, program uint32) {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 	gl.UseProgram(program)
 
-	gl.BindVertexArray(vao)
-	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(square))/3)
+	for x := range cells {
+		for _, c := range cells[x] {
+			c.draw()
+		}
+	}
 
 	glfw.PollEvents()
 	window.SwapBuffers()
@@ -145,4 +159,54 @@ func compileShader(source string, shaderType uint32) (uint32, error) {
 	}
 
 	return shader, nil
+}
+
+func makeCells() [][]*cell {
+	cells := make([][]*cell, rows, rows)
+	for x := 0; x < rows; x++ {
+		for y := 0; y < columns; y++ {
+			c := newCell(x, y)
+			cells[x] = append(cells[x], c)
+		}
+	}
+
+	return cells
+}
+
+func newCell(x, y int) *cell {
+	points := make([]float32, len(square), len(square))
+	copy(points, square)
+
+	for i := 0; i < len(points); i++ {
+		var position float32
+		var size float32
+		switch i % 3 {
+		case 0:
+			size = 1.0 / float32(columns)
+			position = float32(x) * size
+		case 1:
+			size = 1.0 / float32(rows)
+			position = float32(y) * size
+		default:
+			continue
+		}
+
+		if points[i] < 0 {
+			points[i] = (position * 2) - 1
+		} else {
+			points[i] = ((position + size) * 2) - 1
+		}
+	}
+
+	return &cell{
+		drawable: makeVAO(points),
+
+		x: x,
+		y: y,
+	}
+}
+
+func (c *cell) draw() {
+	gl.BindVertexArray(c.drawable)
+	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(square)/3))
 }
