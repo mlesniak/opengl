@@ -1,8 +1,21 @@
+# Overview
+
+OpenGL playground using Go.
 
 
-brew install glfw3
-cd /usr/local/lib
-ln -s ../Cellar/glfw/3.3.2/lib/libglfw.3.3.dylib libglfw3.dylib
+## Preparations
+
+    brew install glfw3
+    cd /usr/local/lib
+    ln -s ../Cellar/glfw/3.3.2/lib/libglfw.3.3.dylib libglfw3.dylib
+
+## OpenGL tutorial
+
+- http://www.opengl-tutorial.org/beginners-tutorials/tutorial-1-opening-a-window/
+
+## Conway's Game of Life
+
+The first commits are based on
 
 - https://kylewbanks.com/blog/tutorial-opengl-with-golang-part-1-hello-opengl
 - https://kylewbanks.com/blog/tutorial-opengl-with-golang-part-2-drawing-the-game-board
