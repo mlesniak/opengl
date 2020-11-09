@@ -22,6 +22,21 @@ func main() {
 	// Translation of C Code glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE)
 	window.SetInputMode(glfw.StickyKeysMode, glfw.True)
 
+	var vao uint32
+	gl.GenVertexArrays(1, &vao)
+	gl.BindVertexArray(vao)
+
+	points := []float32{
+		-1.0, -1.0, 0,
+		1, -1, 0,
+		0, 1, 0,
+	}
+
+	var vertextbuffer uint32
+	gl.GenBuffers(1, &vertextbuffer)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vertextbuffer)
+	gl.BufferData(gl.ARRAY_BUFFER, 4*len(points), gl.Ptr(points), gl.STATIC_DRAW)
+
 	for !window.ShouldClose() {
 		// Input handling
 		key := window.GetKey(glfw.KeyEscape)
@@ -30,6 +45,12 @@ func main() {
 		}
 
 		gl.Clear(gl.COLOR_BUFFER_BIT)
+
+		gl.EnableVertexAttribArray(0)
+		gl.BindBuffer(gl.ARRAY_BUFFER, vertextbuffer)
+		gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, nil)
+		gl.DrawArrays(gl.TRIANGLES, 0, 3)
+		gl.DisableVertexAttribArray(0)
 
 		window.SwapBuffers()
 		glfw.PollEvents()
