@@ -17,7 +17,7 @@ func main() {
 
 	window := initGlfw()
 	defer glfw.Terminate()
-	initOpenGL()
+	program := initOpenGL()
 
 	// Translation of C Code glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE)
 	window.SetInputMode(glfw.StickyKeysMode, glfw.True)
@@ -37,6 +37,7 @@ func main() {
 	gl.BindBuffer(gl.ARRAY_BUFFER, vertextbuffer)
 	gl.BufferData(gl.ARRAY_BUFFER, 4*len(points), gl.Ptr(points), gl.STATIC_DRAW)
 
+	gl.ClearColor(0, 0, 0.4, 1)
 	for !window.ShouldClose() {
 		// Input handling
 		key := window.GetKey(glfw.KeyEscape)
@@ -44,10 +45,13 @@ func main() {
 			break
 		}
 
-		gl.Clear(gl.COLOR_BUFFER_BIT)
+		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
+		gl.UseProgram(program)
 
 		gl.EnableVertexAttribArray(0)
 		gl.BindBuffer(gl.ARRAY_BUFFER, vertextbuffer)
+		// 0 in index refers to location in layout for vec3
 		gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, nil)
 		gl.DrawArrays(gl.TRIANGLES, 0, 3)
 		gl.DisableVertexAttribArray(0)
