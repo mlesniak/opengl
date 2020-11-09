@@ -24,6 +24,7 @@ func initGlfw() *glfw.Window {
 		panic("unable to initialize glfw")
 	}
 
+	glfw.WindowHint(glfw.Samples, 4)
 	glfw.WindowHint(glfw.Resizable, glfw.True)
 	glfw.WindowHint(glfw.ContextVersionMajor, 4)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
