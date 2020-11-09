@@ -3,16 +3,12 @@ package main
 import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
-	"log"
 )
 
 func initOpenGL() uint32 {
 	if err := gl.Init(); err != nil {
 		panic(err)
 	}
-
-	version := gl.GoStr(gl.GetString(gl.VERSION))
-	log.Println("OpenGL version", version)
 
 	prog := gl.CreateProgram()
 	gl.LinkProgram(prog)

@@ -1,10 +1,9 @@
 package main
 
 import (
-	"runtime"
-	"time"
-
+	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
+	"runtime"
 )
 
 const (
@@ -18,7 +17,7 @@ func main() {
 
 	window := initGlfw()
 	defer glfw.Terminate()
-	program := initOpenGL()
+	initOpenGL()
 
 	// Translation of C Code glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE)
 	window.SetInputMode(glfw.StickyKeysMode, glfw.True)
@@ -30,10 +29,10 @@ func main() {
 			break
 		}
 
-		// Render loop.
-		t := time.Now()
-		draw(window, program)
-		time.Sleep(time.Second/time.Duration(fps) - time.Since(t))
+		gl.Clear(gl.COLOR_BUFFER_BIT)
+
+		window.SwapBuffers()
+		glfw.PollEvents()
 	}
 }
 
