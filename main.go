@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/go-gl/mathgl/mgl32"
@@ -31,6 +32,11 @@ func main() {
 		0, 1, 0,
 	)
 	model := mgl32.Ident4()
+	sm := mgl32.Scale3D(0.5, 0.5, 0.5)
+	ro := mgl32.HomogRotate3D(mgl32.DegToRad(45), [3]float32{0, -1, 0})
+	model = model.Mul4(sm).Mul4(ro)
+	fmt.Printf("%v\n", model)
+
 	mvp := projection.Mul4(view.Mul4(model))
 	matrix := gl.GetUniformLocation(program, gl.Str("MVP\x00"))
 
