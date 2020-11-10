@@ -57,6 +57,9 @@ func initOpenGL() (uint32, uint32, uint32) {
 	gl.DeleteShader(fid)
 	gl.DeleteShader(vid)
 
+	gl.Enable(gl.DEPTH_TEST)
+	gl.DepthFunc(gl.LESS)
+
 	return program, fid, vid
 }
 
