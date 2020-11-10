@@ -127,10 +127,7 @@ func main() {
 		0.982, 0.099, 0.879,
 	}
 
-	rand.Seed(time.Now().UnixNano())
-	for i := range colors {
-		colors[i] = rand.Float32()
-	}
+	randomColors(colors)
 
 	var vertextbuffer uint32
 	gl.GenBuffers(1, &vertextbuffer)
@@ -149,6 +146,11 @@ func main() {
 		if key == glfw.Press {
 			window.SetShouldClose(true)
 		}
+
+		// Random color on each frame.
+		randomColors(colors)
+		gl.BindBuffer(gl.ARRAY_BUFFER, colorbuffer)
+		gl.BufferData(gl.ARRAY_BUFFER, 4*len(colors), gl.Ptr(colors), gl.STATIC_DRAW)
 
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
@@ -178,6 +180,13 @@ func main() {
 
 	//gl.DetachShader(program, vid)
 	//gl.DetachShader(program, fid)
+}
+
+func randomColors(colors []float32) {
+	rand.Seed(time.Now().UnixNano())
+	for i := range colors {
+		colors[i] = rand.Float32()
+	}
 }
 
 func draw(window *glfw.Window, program uint32) {
