@@ -184,10 +184,21 @@ func main() {
 
 func randomColors(colors []float32) {
 	rand.Seed(time.Now().UnixNano())
-	num := 1
+	num := len(colors)
 	for i := 0; i < num; i++ {
-		j := rand.Intn(len(colors))
-		colors[j] = rand.Float32()
+		//j := rand.Intn(len(colors))
+		j := i
+		if rand.Intn(2) == 0 {
+			colors[j] = colors[j] + 0.01
+			if colors[j] > 1 {
+				colors[j] = 1
+			}
+		} else {
+			colors[j] = colors[j] - 0.01
+			if colors[j] < 0 {
+				colors[j] = 0
+			}
+		}
 	}
 }
 
