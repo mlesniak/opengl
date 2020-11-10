@@ -5,7 +5,9 @@ import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/go-gl/mathgl/mgl32"
+	"math/rand"
 	"runtime"
+	"time"
 )
 
 const (
@@ -123,6 +125,11 @@ func main() {
 		0.673, 0.211, 0.457,
 		0.820, 0.883, 0.371,
 		0.982, 0.099, 0.879,
+	}
+
+	rand.Seed(time.Now().UnixNano())
+	for i := range colors {
+		colors[i] = rand.Float32()
 	}
 
 	var vertextbuffer uint32
