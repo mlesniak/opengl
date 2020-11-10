@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
+	"github.com/go-gl/mathgl/mgl32"
 	"runtime"
 )
 
@@ -17,7 +18,21 @@ func main() {
 
 	window := initGlfw()
 	defer glfw.Terminate()
-	program := initOpenGL()
+	program, _, _ := initOpenGL()
+
+	// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
+	projection := mgl32.Perspective(mgl32.DegToRad(45.0), float32(width)/height, 0.1, 100.0)
+	// Camera is at (4,3,3), in World Space
+	// and looks at the origin
+	// Head is up (set to 0,-1,0 to look upside-down)
+	view := mgl32.LookAt(
+		4, 3, 3,
+		0, 0, 0,
+		0, 1, 0,
+	)
+	model := mgl32.Ident4()
+	mvp := projection.Mul4(view.Mul4(model))
+	matrix := gl.GetUniformLocation(program, gl.Str("MVP\x00"))
 
 	// Translation of C Code glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE)
 	window.SetInputMode(glfw.StickyKeysMode, glfw.True)
@@ -42,12 +57,13 @@ func main() {
 		// Input handling
 		key := window.GetKey(glfw.KeyEscape)
 		if key == glfw.Press {
-			break
+			window.SetShouldClose(true)
 		}
 
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 		gl.UseProgram(program)
+		gl.UniformMatrix4fv(matrix, 1, false, &mvp[0])
 
 		gl.EnableVertexAttribArray(0)
 		gl.BindBuffer(gl.ARRAY_BUFFER, vertextbuffer)
@@ -59,6 +75,9 @@ func main() {
 		window.SwapBuffers()
 		glfw.PollEvents()
 	}
+
+	//gl.DetachShader(program, vid)
+	//gl.DetachShader(program, fid)
 }
 
 func draw(window *glfw.Window, program uint32) {

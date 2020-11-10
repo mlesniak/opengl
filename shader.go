@@ -8,7 +8,7 @@ import (
 )
 
 func compileShader(bs []byte, shaderType uint32) (uint32, error) {
-	source := string(bs)
+	source := string(bs) + "\x00"
 	shader := gl.CreateShader(shaderType)
 
 	csources, free := gl.Strs(source)
@@ -25,7 +25,7 @@ func compileShader(bs []byte, shaderType uint32) (uint32, error) {
 		log := strings.Repeat("\x00", int(logLength+1))
 		gl.GetShaderInfoLog(shader, logLength, nil, gl.Str(log))
 
-		return 0, fmt.Errorf("failed to compile %v: %v", source, log)
+		return 0, fmt.Errorf("failed to compile\n---\n%v\n---\n: %v", source, log)
 	}
 
 	return shader, nil
