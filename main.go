@@ -48,9 +48,42 @@ func main() {
 	gl.BindVertexArray(vao)
 
 	points := []float32{
-		-1.0, -1.0, 0,
-		1, -1, 0,
-		0, 1, 0,
+		-1.0, -1.0, -1.0, // triangle 1 : begin
+		-1.0, -1.0, 1.0,
+		-1.0, 1.0, 1.0, // triangle 1 : end
+		1.0, 1.0, -1.0, // triangle 2 : begin
+		-1.0, -1.0, -1.0,
+		-1.0, 1.0, -1.0, // triangle 2 : end
+		1.0, -1.0, 1.0,
+		-1.0, -1.0, -1.0,
+		1.0, -1.0, -1.0,
+		1.0, 1.0, -1.0,
+		1.0, -1.0, -1.0,
+		-1.0, -1.0, -1.0,
+		-1.0, -1.0, -1.0,
+		-1.0, 1.0, 1.0,
+		-1.0, 1.0, -1.0,
+		1.0, -1.0, 1.0,
+		-1.0, -1.0, 1.0,
+		-1.0, -1.0, -1.0,
+		-1.0, 1.0, 1.0,
+		-1.0, -1.0, 1.0,
+		1.0, -1.0, 1.0,
+		1.0, 1.0, 1.0,
+		1.0, -1.0, -1.0,
+		1.0, 1.0, -1.0,
+		1.0, -1.0, -1.0,
+		1.0, 1.0, 1.0,
+		1.0, -1.0, 1.0,
+		1.0, 1.0, 1.0,
+		1.0, 1.0, -1.0,
+		-1.0, 1.0, -1.0,
+		1.0, 1.0, 1.0,
+		-1.0, 1.0, -1.0,
+		-1.0, 1.0, 1.0,
+		1.0, 1.0, 1.0,
+		-1.0, 1.0, 1.0,
+		1.0, -1.0, 1.0,
 	}
 
 	var vertextbuffer uint32
@@ -75,7 +108,7 @@ func main() {
 		gl.BindBuffer(gl.ARRAY_BUFFER, vertextbuffer)
 		// 0 in index refers to location in layout for vec3
 		gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, nil)
-		gl.DrawArrays(gl.TRIANGLES, 0, 3)
+		gl.DrawArrays(gl.TRIANGLES, 0, 12*3)
 		gl.DisableVertexAttribArray(0)
 
 		window.SwapBuffers()
