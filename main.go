@@ -31,11 +31,24 @@ func render(window *glfw.Window) {
 		0.0, 0.5, 0.0,
 	}
 
+	// ... a VAO that stores our vertex attribute configuration and which VBO to use.
+	// Usually when you have multiple objects you want to draw, you first generate/configure
+	// all the VAOs (and thus the required VBO and attribute pointers) and store those for
+	// later use. The moment we want to draw one of our objects, we take the corresponding VAO,
+	// bind it, then draw the object and unbind the VAO again.
+	var vao uint32
+	gl.GenVertexArrays(1, &vao)
+	gl.BindVertexArray(vao)
+
 	// Send vertices to GPU memory for later consumption.
+	// 0. copy our vertices array in a buffer for OpenGL to use
 	var vbo uint32
 	gl.GenBuffers(1, &vbo)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, 4*len(vertices), gl.Ptr(vertices), gl.STATIC_DRAW)
+	// 1. then set the vertex attributes pointers
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 3*4, nil)
+	gl.EnableVertexAttribArray(0)
 
 	// Compile shaders.
 	var vertexShader uint32
@@ -80,13 +93,25 @@ func render(window *glfw.Window) {
 	gl.DeleteShader(vertexShader)
 	gl.DeleteShader(fragmentShader)
 	// Every shader and rendering call after glUseProgram will now use this program object (and thus the shaders).
-	gl.UseProgram(shaderProgram)
 
 	for !window.ShouldClose() {
 		processInput(window)
 
 		gl.ClearColor(0.39, 0.39, 0.39, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT)
+
+		// 2. use our shader program when we want to render an object
+		//
+		// To draw our objects of choice, OpenGL provides us with the
+		// glDrawArrays function that draws primitives using the currently
+		// active shader, the previously defined vertex attribute
+		// configuration and with the VBO's vertex data (indirectly bound
+		// via the VAO).
+		gl.UseProgram(shaderProgram)
+		gl.BindVertexArray(vao)
+
+		// Draw triangles.
+		gl.DrawArrays(gl.TRIANGLES, 0, 3)
 
 		window.SwapBuffers()
 		glfw.PollEvents()
