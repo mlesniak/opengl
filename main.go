@@ -1,12 +1,11 @@
 package main
 
 import (
+	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
 	_ "image/png"
 	"log"
 	"runtime"
-	//"github.com/go-gl/gl/v4.1-core/gl"
-	//"github.com/go-gl/glfw/v3.3/glfw"
 	//"github.com/go-gl/mathgl/mgl32"
 )
 
@@ -27,6 +26,9 @@ func main() {
 func render(window *glfw.Window) {
 	for !window.ShouldClose() {
 		processInput(window)
+
+		gl.ClearColor(0.39, 0.39, 0.39, 1.0)
+		gl.Clear(gl.COLOR_BUFFER_BIT)
 
 		window.SwapBuffers()
 		glfw.PollEvents()
@@ -55,5 +57,14 @@ func initialize() *glfw.Window {
 		panic(err)
 	}
 	window.MakeContextCurrent()
+
+	// Initialize Glow
+	if err := gl.Init(); err != nil {
+		panic(err)
+	}
+
+	version := gl.GoStr(gl.GetString(gl.VERSION))
+	log.Println("OpenGL version", version)
+
 	return window
 }
