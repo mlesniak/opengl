@@ -2,16 +2,19 @@
 
 OpenGL playground using Go.
 
-
 ## Preparations
 
     brew install glfw3
     cd /usr/local/lib
     ln -s ../Cellar/glfw/3.3.2/lib/libglfw.3.3.dylib libglfw3.dylib
 
+## Current reference
+
+https://learnopengl.com/Getting-started/Hello-Window
+
 ## OpenGL tutorial
 
-- http://www.opengl-tutorial.org/beginners-tutorials/tutorial-1-opening-a-window/
+The intermediate ones on http://www.opengl-tutorial.org/beginners-tutorials/tutorial-1-opening-a-window/ and the following steps.
 
 ## Conway's Game of Life
 
