@@ -26,8 +26,16 @@ func main() {
 
 func render(window *glfw.Window) {
 	for !window.ShouldClose() {
+		processInput(window)
+
 		window.SwapBuffers()
 		glfw.PollEvents()
+	}
+}
+
+func processInput(window *glfw.Window) {
+	if window.GetKey(glfw.KeyEscape) == glfw.Press {
+		window.SetShouldClose(true)
 	}
 }
 
