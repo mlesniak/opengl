@@ -102,22 +102,21 @@ func render(window *glfw.Window) {
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
 		// 2. use our shader program when we want to render an object
-		//
-		// To draw our objects of choice, OpenGL provides us with the
-		// glDrawArrays function that draws primitives using the currently
-		// active shader, the previously defined vertex attribute
-		// configuration and with the VBO's vertex data (indirectly bound
-		// via the VAO).
 		gl.UseProgram(shaderProgram)
-		gl.BindVertexArray(vao)
 
-		// Set uniform variable in shader.
+		// Update uniform variable in shader.
 		t := glfw.GetTime()
 		green := (math.Sin(t) / 2) + 0.5
 		vertexColorLoc := gl.GetUniformLocation(shaderProgram, gl.Str("ourColor\x00"))
 		gl.Uniform4f(vertexColorLoc, 0, float32(green), 0, 1)
 
 		// Draw triangles.
+		// To draw our objects of choice, OpenGL provides us with the
+		// glDrawArrays function that draws primitives using the currently
+		// active shader, the previously defined vertex attribute
+		// configuration and with the VBO's vertex data (indirectly bound
+		// via the VAO).
+		gl.BindVertexArray(vao)
 		gl.DrawArrays(gl.TRIANGLES, 0, 3)
 
 		window.SwapBuffers()
