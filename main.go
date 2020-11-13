@@ -3,10 +3,10 @@ package main
 import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
+	"github.com/mlesniak/opengl/shader"
 	_ "image/png"
 	"log"
 	"runtime"
-	"strings"
 	//"github.com/go-gl/mathgl/mgl32"
 )
 
@@ -57,37 +57,13 @@ func render(window *glfw.Window) {
 	gl.EnableVertexAttribArray(1)
 
 	// Compile shaders.
-	var vertexShader uint32
-	vertexShader = gl.CreateShader(gl.VERTEX_SHADER)
-	csources, free := gl.Strs(vertexShaderSource)
-	gl.ShaderSource(vertexShader, 1, csources, nil)
-	free()
-	gl.CompileShader(vertexShader)
-
-	var status int32
-	gl.GetShaderiv(vertexShader, gl.COMPILE_STATUS, &status)
-	if status == gl.FALSE {
-		var logLength int32
-		gl.GetShaderiv(vertexShader, gl.INFO_LOG_LENGTH, &logLength)
-		logs := strings.Repeat("\x00", int(logLength+1))
-		gl.GetShaderInfoLog(vertexShader, logLength, nil, gl.Str(logs))
-		log.Printf("failed to compile %v: %v", vertexShaderSource, logs)
+	vertexShader, err := shader.Compile(shader.Vertex, "vertex.shader")
+	if err != nil {
+		panic(err)
 	}
-
-	var fragmentShader uint32
-	fragmentShader = gl.CreateShader(gl.FRAGMENT_SHADER)
-	csources, free = gl.Strs(fragmentShaderSource)
-	gl.ShaderSource(fragmentShader, 1, csources, nil)
-	free()
-	gl.CompileShader(fragmentShader)
-
-	gl.GetShaderiv(fragmentShader, gl.COMPILE_STATUS, &status)
-	if status == gl.FALSE {
-		var logLength int32
-		gl.GetShaderiv(fragmentShader, gl.INFO_LOG_LENGTH, &logLength)
-		logs := strings.Repeat("\x00", int(logLength+1))
-		gl.GetShaderInfoLog(fragmentShader, logLength, nil, gl.Str(logs))
-		log.Printf("failed to compile %v: %v", fragmentShaderSource, logs)
+	fragmentShader, err := shader.Compile(shader.Fragment, "fragment.shader")
+	if err != nil {
+		panic(err)
 	}
 
 	// Create program combining shaders.
@@ -156,28 +132,3 @@ func initialize() *glfw.Window {
 
 	return window
 }
-
-var vertexShaderSource = `
-#version 330 core
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aColor;
-
-out vec3 ourColor;
-
-void main()
-{
-    gl_Position = vec4(aPos, 1.0);
-	ourColor = aColor;
-}
-` + "\x00"
-
-var fragmentShaderSource = `
-#version 330 core
-out vec4 FragColor;
-in vec3 ourColor;
-
-void main()
-{
-    FragColor = vec4(ourColor, 1.0);
-} 
-` + "\x00"
