@@ -5,6 +5,7 @@ import (
 	"github.com/go-gl/glfw/v3.3/glfw"
 	_ "image/png"
 	"log"
+	"math"
 	"runtime"
 	"strings"
 	//"github.com/go-gl/mathgl/mgl32"
@@ -110,6 +111,12 @@ func render(window *glfw.Window) {
 		gl.UseProgram(shaderProgram)
 		gl.BindVertexArray(vao)
 
+		// Set uniform variable in shader.
+		t := glfw.GetTime()
+		green := (math.Sin(t) / 2) + 0.5
+		vertexColorLoc := gl.GetUniformLocation(shaderProgram, gl.Str("ourColor\x00"))
+		gl.Uniform4f(vertexColorLoc, 0, float32(green), 0, 1)
+
 		// Draw triangles.
 		gl.DrawArrays(gl.TRIANGLES, 0, 3)
 
@@ -166,8 +173,10 @@ var fragmentShaderSource = `
 #version 330 core
 out vec4 FragColor;
 
+uniform vec4 ourColor;
+
 void main()
 {
-    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+    FragColor = ourColor;
 } 
 ` + "\x00"
