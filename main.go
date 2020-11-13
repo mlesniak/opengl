@@ -5,7 +5,6 @@ import (
 	"github.com/go-gl/glfw/v3.3/glfw"
 	_ "image/png"
 	"log"
-	"math"
 	"runtime"
 	"strings"
 	//"github.com/go-gl/mathgl/mgl32"
@@ -26,10 +25,11 @@ func main() {
 }
 
 func render(window *glfw.Window) {
+	// coordinates and colors per row
 	vertices := []float32{
-		-0.5, -0.5, 0.0,
-		0.5, -0.5, 0.0,
-		0.0, 0.5, 0.0,
+		-0.5, -0.5, 0.0, 1, 0, 0,
+		0.5, -0.5, 0.0, 0, 1, 0,
+		0.0, 0.5, 0.0, 0, 0, 1,
 	}
 
 	// ... a VAO that stores our vertex attribute configuration and which VBO to use.
@@ -48,8 +48,13 @@ func render(window *glfw.Window) {
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, 4*len(vertices), gl.Ptr(vertices), gl.STATIC_DRAW)
 	// 1. then set the vertex attributes pointers
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 3*4, nil)
+	// position attributes.
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 6*4, nil)
 	gl.EnableVertexAttribArray(0)
+	// color attribute.
+	offset := 3 * 4
+	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, 6*4, gl.PtrOffset(offset))
+	gl.EnableVertexAttribArray(1)
 
 	// Compile shaders.
 	var vertexShader uint32
@@ -104,12 +109,6 @@ func render(window *glfw.Window) {
 		// 2. use our shader program when we want to render an object
 		gl.UseProgram(shaderProgram)
 
-		// Update uniform variable in shader.
-		t := glfw.GetTime()
-		green := (math.Sin(t) / 2) + 0.5
-		vertexColorLoc := gl.GetUniformLocation(shaderProgram, gl.Str("ourColor\x00"))
-		gl.Uniform4f(vertexColorLoc, 0, float32(green), 0, 1)
-
 		// Draw triangles.
 		// To draw our objects of choice, OpenGL provides us with the
 		// glDrawArrays function that draws primitives using the currently
@@ -161,21 +160,24 @@ func initialize() *glfw.Window {
 var vertexShaderSource = `
 #version 330 core
 layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aColor;
+
+out vec3 ourColor;
 
 void main()
 {
-    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    gl_Position = vec4(aPos, 1.0);
+	ourColor = aColor;
 }
 ` + "\x00"
 
 var fragmentShaderSource = `
 #version 330 core
 out vec4 FragColor;
-
-uniform vec4 ourColor;
+in vec3 ourColor;
 
 void main()
 {
-    FragColor = ourColor;
+    FragColor = vec4(ourColor, 1.0);
 } 
 ` + "\x00"
