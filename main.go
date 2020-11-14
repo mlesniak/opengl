@@ -25,11 +25,18 @@ func main() {
 }
 
 func render(window *glfw.Window) {
-	// coordinates and colors per row
+	// Coordinates
 	vertices := []float32{
-		-0.5, -0.5, 0.0, 1, 0, 0,
-		0.5, -0.5, 0.0, 0, 1, 0,
-		0.0, 0.5, 0.0, 0, 0, 1,
+		0.5, 0.5, 0.0, // top right
+		0.5, -0.5, 0.0, // bottom right
+		-0.5, -0.5, 0.0, // bottom let
+		-0.5, 0.5, 0.0, // top let
+	}
+
+	// Use an EBO to reference above coordinates.
+	indices := []int32{
+		0, 1, 3, // first triangle
+		1, 2, 3, // second triangle
 	}
 
 	// ... a VAO that stores our vertex attribute configuration and which VBO to use.
@@ -47,14 +54,16 @@ func render(window *glfw.Window) {
 	gl.GenBuffers(1, &vbo)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, 4*len(vertices), gl.Ptr(vertices), gl.STATIC_DRAW)
+
+	var ebo uint32
+	gl.GenBuffers(1, &ebo)
+	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
+	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(indices), gl.STATIC_DRAW)
+
 	// 1. then set the vertex attributes pointers
 	// position attributes.
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 6*4, nil)
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 3*4, nil)
 	gl.EnableVertexAttribArray(0)
-	// color attribute.
-	offset := 3 * 4
-	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, 6*4, gl.PtrOffset(offset))
-	gl.EnableVertexAttribArray(1)
 
 	// Compile shaders.
 	vertexShader, err := shader.Compile(shader.Vertex, "vertex.shader")
@@ -91,8 +100,13 @@ func render(window *glfw.Window) {
 		// active shader, the previously defined vertex attribute
 		// configuration and with the VBO's vertex data (indirectly bound
 		// via the VAO).
-		gl.BindVertexArray(vao)
-		gl.DrawArrays(gl.TRIANGLES, 0, 3)
+		//
+		//gl.BindVertexArray(vao)
+		//gl.DrawArrays(gl.TRIANGLES, 0, 3)
+
+		// Use ebo / index
+		gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
+		gl.DrawElements(gl.TRIANGLES, int32(len(indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
 
 		window.SwapBuffers()
 		glfw.PollEvents()
