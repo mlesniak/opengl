@@ -30,19 +30,12 @@ func main() {
 
 func render(window *glfw.Window) {
 	// Coordinates
-	//vertices := []float32{
-	//	0.5, 0.5, 0.0, // top right
-	//	0.5, -0.5, 0.0, // bottom right
-	//	-0.5, -0.5, 0.0, // bottom let
-	//	-0.5, 0.5, 0.0, // top let
-	//}
-
 	vertices := []float32{
 		// positions          // colors           // texture coords
-		0.5, 0.5, 0.0, 1.0, 0.0, 0.0,
-		0.5, -0.5, 0.0, 0.0, 1.0, 0.0,
-		-0.5, -0.5, 0.0, 0.0, 0.0, 1.0,
-		-0.5, 0.5, 0.0, 1.0, 1.0, 0.0,
+		0.5, 0.5, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, // top right
+		0.5, -0.5, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, // bottom right
+		-0.5, -0.5, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, // bottom let
+		-0.5, 0.5, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, // top let
 	}
 
 	// use colors here, too.
@@ -76,10 +69,10 @@ func render(window *glfw.Window) {
 
 	// 1. then set the vertex attributes pointers
 	// position attributes.
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 6*4, nil)
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 8*4, nil)
 	gl.EnableVertexAttribArray(0)
 	// For colors
-	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, 6*4, gl.PtrOffset(3*4))
+	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(3*4))
 	gl.EnableVertexAttribArray(1)
 
 	// Compile shaders.
