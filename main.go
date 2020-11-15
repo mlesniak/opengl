@@ -104,15 +104,22 @@ func render(window *glfw.Window) {
 	// Every shader and rendering call after glUseProgram will now use this program object (and thus the shaders).
 	gl.UseProgram(shaderProgram)
 
+	var angle float64 = 0
 	model := mgl32.Ident4()
+	//model = model.Mul4(mgl32.Translate3D(1.0, 0, 0))
 	modelUniform := gl.GetUniformLocation(shaderProgram, gl.Str("model\x00"))
 	gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
+	previousTime := glfw.GetTime()
 	for !window.ShouldClose() {
 		processInput(window)
 
 		gl.ClearColor(0.39, 0.39, 0.39, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT)
+
+		time := glfw.GetTime()
+		elapsed := time - previousTime
+		previousTime = time
 
 		// 2. use our shader program when we want to render an object
 		gl.UseProgram(shaderProgram)
@@ -126,6 +133,12 @@ func render(window *glfw.Window) {
 		//
 		//gl.BindVertexArray(vao)
 		//gl.DrawArrays(gl.TRIANGLES, 0, 3)
+
+		angle += elapsed * 50
+		model = mgl32.HomogRotate3D(mgl32.DegToRad(float32(angle)), mgl32.Vec3{0.4, 1, 0.2})
+		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
+
+		//log.Printf("%v\n", angle)
 
 		// Use ebo / index
 		gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
