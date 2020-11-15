@@ -10,6 +10,7 @@ import (
 	"image/draw"
 	_ "image/png"
 	"log"
+	"math"
 	"os"
 	"runtime"
 )
@@ -134,8 +135,8 @@ func render(window *glfw.Window) {
 		//gl.BindVertexArray(vao)
 		//gl.DrawArrays(gl.TRIANGLES, 0, 3)
 
-		angle += elapsed * 50
-		model = mgl32.HomogRotate3D(mgl32.DegToRad(float32(angle)), mgl32.Vec3{0.4, 1, 0.2})
+		angle += elapsed
+		model = mgl32.Scale3D(float32(math.Sin(angle))*3, float32(math.Sin(angle))*3, 1.0)
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
 		//log.Printf("%v\n", angle)
