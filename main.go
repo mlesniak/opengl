@@ -75,6 +75,13 @@ func render(window *glfw.Window) {
 	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(3*4))
 	gl.EnableVertexAttribArray(1)
 
+	// For texture
+	gl.VertexAttribPointer(2, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(6*4))
+	gl.EnableVertexAttribArray(2)
+
+	texture, _ := newTexture("square.png")
+	gl.BindTexture(gl.TEXTURE_2D, texture)
+
 	// Compile shaders.
 	vertexShader, err := shader.Compile(shader.Vertex, "vertex.shader")
 	if err != nil {
