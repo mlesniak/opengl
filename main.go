@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/mlesniak/opengl/shader"
 	"image"
 	"image/draw"
@@ -11,7 +12,6 @@ import (
 	"log"
 	"os"
 	"runtime"
-	//"github.com/go-gl/mathgl/mgl32"
 )
 
 const windowWidth = 800
@@ -100,7 +100,13 @@ func render(window *glfw.Window) {
 	gl.LinkProgram(shaderProgram)
 	gl.DeleteShader(vertexShader)
 	gl.DeleteShader(fragmentShader)
+
 	// Every shader and rendering call after glUseProgram will now use this program object (and thus the shaders).
+	gl.UseProgram(shaderProgram)
+
+	model := mgl32.Ident4()
+	modelUniform := gl.GetUniformLocation(shaderProgram, gl.Str("model\x00"))
+	gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
 	for !window.ShouldClose() {
 		processInput(window)
