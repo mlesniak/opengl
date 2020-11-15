@@ -1,11 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/mlesniak/opengl/shader"
+	"image"
+	"image/draw"
 	_ "image/png"
 	"log"
+	"os"
 	"runtime"
 	//"github.com/go-gl/mathgl/mgl32"
 )
@@ -26,12 +30,22 @@ func main() {
 
 func render(window *glfw.Window) {
 	// Coordinates
+	//vertices := []float32{
+	//	0.5, 0.5, 0.0, // top right
+	//	0.5, -0.5, 0.0, // bottom right
+	//	-0.5, -0.5, 0.0, // bottom let
+	//	-0.5, 0.5, 0.0, // top let
+	//}
+
 	vertices := []float32{
-		0.5, 0.5, 0.0, // top right
-		0.5, -0.5, 0.0, // bottom right
-		-0.5, -0.5, 0.0, // bottom let
-		-0.5, 0.5, 0.0, // top let
+		// positions          // colors           // texture coords
+		0.5, 0.5, 0.0, 1.0, 0.0, 0.0,
+		0.5, -0.5, 0.0, 0.0, 1.0, 0.0,
+		-0.5, -0.5, 0.0, 0.0, 0.0, 1.0,
+		-0.5, 0.5, 0.0, 1.0, 1.0, 0.0,
 	}
+
+	// use colors here, too.
 
 	// Use an EBO to reference above coordinates.
 	indices := []int32{
@@ -62,8 +76,11 @@ func render(window *glfw.Window) {
 
 	// 1. then set the vertex attributes pointers
 	// position attributes.
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 3*4, nil)
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 6*4, nil)
 	gl.EnableVertexAttribArray(0)
+	// For colors
+	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, 6*4, gl.PtrOffset(3*4))
+	gl.EnableVertexAttribArray(1)
 
 	// Compile shaders.
 	vertexShader, err := shader.Compile(shader.Vertex, "vertex.shader")
@@ -145,4 +162,42 @@ func initialize() *glfw.Window {
 	log.Println("OpenGL version", version)
 
 	return window
+}
+
+func newTexture(file string) (uint32, error) {
+	imgFile, err := os.Open(file)
+	if err != nil {
+		return 0, fmt.Errorf("texture %q not found on disk: %v", file, err)
+	}
+	img, _, err := image.Decode(imgFile)
+	if err != nil {
+		return 0, err
+	}
+
+	rgba := image.NewRGBA(img.Bounds())
+	if rgba.Stride != rgba.Rect.Size().X*4 {
+		return 0, fmt.Errorf("unsupported stride")
+	}
+	draw.Draw(rgba, rgba.Bounds(), img, image.Point{0, 0}, draw.Src)
+
+	var texture uint32
+	gl.GenTextures(1, &texture)
+	gl.ActiveTexture(gl.TEXTURE0)
+	gl.BindTexture(gl.TEXTURE_2D, texture)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+	gl.TexImage2D(
+		gl.TEXTURE_2D,
+		0,
+		gl.RGBA,
+		int32(rgba.Rect.Size().X),
+		int32(rgba.Rect.Size().Y),
+		0,
+		gl.RGBA,
+		gl.UNSIGNED_BYTE,
+		gl.Ptr(rgba.Pix))
+
+	return texture, nil
 }
