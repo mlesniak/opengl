@@ -38,6 +38,50 @@ func render(window *glfw.Window) {
 		-0.5, 0.5, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, // top let
 	}
 
+	vertices = []float32{
+		-0.5, -0.5, -0.5, 0.0, 0.0,
+		0.5, -0.5, -0.5, 1.0, 0.0,
+		0.5, 0.5, -0.5, 1.0, 1.0,
+		0.5, 0.5, -0.5, 1.0, 1.0,
+		-0.5, 0.5, -0.5, 0.0, 1.0,
+		-0.5, -0.5, -0.5, 0.0, 0.0,
+
+		-0.5, -0.5, 0.5, 0.0, 0.0,
+		0.5, -0.5, 0.5, 1.0, 0.0,
+		0.5, 0.5, 0.5, 1.0, 1.0,
+		0.5, 0.5, 0.5, 1.0, 1.0,
+		-0.5, 0.5, 0.5, 0.0, 1.0,
+		-0.5, -0.5, 0.5, 0.0, 0.0,
+
+		-0.5, 0.5, 0.5, 1.0, 0.0,
+		-0.5, 0.5, -0.5, 1.0, 1.0,
+		-0.5, -0.5, -0.5, 0.0, 1.0,
+		-0.5, -0.5, -0.5, 0.0, 1.0,
+		-0.5, -0.5, 0.5, 0.0, 0.0,
+		-0.5, 0.5, 0.5, 1.0, 0.0,
+
+		0.5, 0.5, 0.5, 1.0, 0.0,
+		0.5, 0.5, -0.5, 1.0, 1.0,
+		0.5, -0.5, -0.5, 0.0, 1.0,
+		0.5, -0.5, -0.5, 0.0, 1.0,
+		0.5, -0.5, 0.5, 0.0, 0.0,
+		0.5, 0.5, 0.5, 1.0, 0.0,
+
+		-0.5, -0.5, -0.5, 0.0, 1.0,
+		0.5, -0.5, -0.5, 1.0, 1.0,
+		0.5, -0.5, 0.5, 1.0, 0.0,
+		0.5, -0.5, 0.5, 1.0, 0.0,
+		-0.5, -0.5, 0.5, 0.0, 0.0,
+		-0.5, -0.5, -0.5, 0.0, 1.0,
+
+		-0.5, 0.5, -0.5, 0.0, 1.0,
+		0.5, 0.5, -0.5, 1.0, 1.0,
+		0.5, 0.5, 0.5, 1.0, 0.0,
+		0.5, 0.5, 0.5, 1.0, 0.0,
+		-0.5, 0.5, 0.5, 0.0, 0.0,
+		-0.5, 0.5, -0.5, 0.0, 1.0,
+	}
+
 	// use colors here, too.
 
 	// Use an EBO to reference above coordinates.
@@ -69,14 +113,14 @@ func render(window *glfw.Window) {
 
 	// 1. then set the vertex attributes pointers
 	// position attributes.
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 8*4, nil)
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 5*4, nil)
 	gl.EnableVertexAttribArray(0)
 	// For colors
-	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(3*4))
+	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, 5*4, gl.PtrOffset(3*4))
 	gl.EnableVertexAttribArray(1)
 
 	// For texture
-	gl.VertexAttribPointer(2, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(6*4))
+	gl.VertexAttribPointer(2, 3, gl.FLOAT, false, 5*4, gl.PtrOffset(6*4))
 	gl.EnableVertexAttribArray(2)
 
 	texture, _ := newTexture("square.png")
@@ -121,13 +165,15 @@ func render(window *glfw.Window) {
 	projUniform := gl.GetUniformLocation(shaderProgram, gl.Str("projection\x00"))
 	gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
 
-	//angle := 0
+	gl.Enable(gl.DEPTH_TEST)
+
+	angle := 0
 	//previousTime := glfw.GetTime()
 	for !window.ShouldClose() {
 		processInput(window)
 
 		gl.ClearColor(0.39, 0.39, 0.39, 1.0)
-		gl.Clear(gl.COLOR_BUFFER_BIT)
+		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 		//time := glfw.GetTime()
 		//elapsed := time - previousTime
@@ -146,15 +192,19 @@ func render(window *glfw.Window) {
 		//gl.BindVertexArray(vao)
 		//gl.DrawArrays(gl.TRIANGLES, 0, 3)
 
-		model = model.Mul4(mgl32.HomogRotate3D(mgl32.DegToRad(1), mgl32.Vec3{0, 0, 1}))
+		angle++
+		model = mgl32.HomogRotate3D(mgl32.DegToRad(float32(angle%360)), mgl32.Vec3{0, 1, 0})
 
 		gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
 		gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
 		// Use ebo / index
-		gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
-		gl.DrawElements(gl.TRIANGLES, int32(len(indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
+		//gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
+		//gl.DrawElements(gl.TRIANGLES, int32(len(indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
+
+		gl.BindVertexArray(vao)
+		gl.DrawArrays(gl.TRIANGLES, 0, 36)
 
 		window.SwapBuffers()
 		glfw.PollEvents()
