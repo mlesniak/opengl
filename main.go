@@ -155,8 +155,7 @@ func render(window *glfw.Window) {
 	modelUniform := gl.GetUniformLocation(shaderProgram, gl.Str("model\x00"))
 	gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
-	view := mgl32.Ident4()
-	view = view.Mul4(mgl32.Translate3D(0, 0, -3))
+	view := mgl32.LookAt(0, 1.5, 2, 0, 0, 0, 0, 1, 0)
 	viewUniform := gl.GetUniformLocation(shaderProgram, gl.Str("view\x00"))
 	gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
 
@@ -193,7 +192,8 @@ func render(window *glfw.Window) {
 		//gl.DrawArrays(gl.TRIANGLES, 0, 3)
 
 		angle++
-		model = mgl32.HomogRotate3D(mgl32.DegToRad(float32(angle%360)), mgl32.Vec3{0, 1, 0})
+		model = mgl32.Ident4()
+		model = model.Mul4(mgl32.HomogRotate3D(mgl32.DegToRad(float32(angle%360)), mgl32.Vec3{0, 1, 0}))
 
 		gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
 		gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
