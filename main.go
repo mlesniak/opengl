@@ -10,6 +10,7 @@ import (
 	"image/draw"
 	_ "image/png"
 	"log"
+	"math"
 	"os"
 	"runtime"
 )
@@ -170,7 +171,45 @@ func render(window *glfw.Window) {
 
 	gl.Enable(gl.DEPTH_TEST)
 
-	angle := 0
+	//angle := 0
+
+	yaw := float32(-90.0)
+	pitch := float32(0.0)
+	firstMouse := true
+
+	lastX := float64(windowWidth / 2)
+	lastY := float64(windowHeight / 2)
+	window.SetInputMode(glfw.CursorMode, glfw.CursorDisabled)
+	window.SetCursorPosCallback(func(w *glfw.Window, xpos float64, ypos float64) {
+		if firstMouse {
+			lastX = xpos
+			lastY = ypos
+			firstMouse = false
+		}
+
+		xoffset := xpos - lastX
+		yoffset := ypos - lastY
+		lastX = xpos
+		lastY = ypos
+		sensitivity := 0.1
+		xoffset = xoffset * sensitivity
+		yoffset = yoffset * sensitivity
+
+		yaw += float32(xoffset)
+		pitch -= float32(yoffset)
+		if pitch > 89 {
+			pitch = 89
+		}
+		if pitch < -89 {
+			pitch = -89
+		}
+		v3 := mgl32.Vec3{
+			float32(math.Cos(float64(mgl32.DegToRad(yaw))) * math.Cos(float64(mgl32.DegToRad(pitch)))),
+			float32(math.Sin(float64(mgl32.DegToRad(pitch)))),
+			float32(math.Sin(float64(mgl32.DegToRad(yaw))) * math.Cos(float64(mgl32.DegToRad(pitch)))),
+		}
+		camFront = v3.Normalize()
+	})
 
 	var deltaTime float32 = 0
 	var lastFrame float64 = 0
@@ -186,17 +225,17 @@ func render(window *glfw.Window) {
 		}
 
 		var camSpeed float32 = 5 * deltaTime
-		if window.GetKey(glfw.KeyUp) == glfw.Press {
+		if window.GetKey(glfw.KeyW) == glfw.Press {
 			camPos = camPos.Add(camFront.Mul(camSpeed))
 		}
-		if window.GetKey(glfw.KeyDown) == glfw.Press {
+		if window.GetKey(glfw.KeyS) == glfw.Press {
 			camPos = camPos.Sub(camFront.Mul(camSpeed))
 		}
-		if window.GetKey(glfw.KeyLeft) == glfw.Press {
+		if window.GetKey(glfw.KeyA) == glfw.Press {
 			x := camFront.Cross(camUp).Normalize().Mul(camSpeed)
 			camPos = camPos.Sub(x)
 		}
-		if window.GetKey(glfw.KeyRight) == glfw.Press {
+		if window.GetKey(glfw.KeyD) == glfw.Press {
 			x := camFront.Cross(camUp).Normalize().Mul(camSpeed)
 			camPos = camPos.Add(x)
 		}
@@ -224,9 +263,9 @@ func render(window *glfw.Window) {
 		view := mgl32.LookAtV(camPos, camPos.Add(camFront), camUp)
 		gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
 
-		angle++
-		model = mgl32.Ident4()
-		model = model.Mul4(mgl32.HomogRotate3D(mgl32.DegToRad(float32(angle%360)), mgl32.Vec3{0, 1, 0}))
+		//angle++
+		//model = mgl32.Ident4()
+		//model = model.Mul4(mgl32.HomogRotate3D(mgl32.DegToRad(float32(angle%360)), mgl32.Vec3{0, 1, 0}))
 
 		gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
 		gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
