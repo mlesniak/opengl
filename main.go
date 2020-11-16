@@ -171,14 +171,21 @@ func render(window *glfw.Window) {
 	gl.Enable(gl.DEPTH_TEST)
 
 	angle := 0
-	//previousTime := glfw.GetTime()
+
+	var deltaTime float32 = 0
+	var lastFrame float64 = 0
+
 	for !window.ShouldClose() {
+		currentFrame := glfw.GetTime()
+		deltaTime = float32(currentFrame - lastFrame)
+		lastFrame = currentFrame
+
 		processInput(window)
 		if window.GetKey(glfw.KeyEscape) == glfw.Press {
 			window.SetShouldClose(true)
 		}
 
-		var camSpeed float32 = 0.05
+		var camSpeed float32 = 5 * deltaTime
 		if window.GetKey(glfw.KeyUp) == glfw.Press {
 			camPos = camPos.Add(camFront.Mul(camSpeed))
 		}
