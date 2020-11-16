@@ -107,6 +107,7 @@ func render(window *glfw.Window) {
 	model := mgl32.Ident4()
 	//model = model.Mul4(mgl32.Translate3D(1.0, 0, 0))
 	model = mgl32.HomogRotate3D(mgl32.DegToRad(-55), mgl32.Vec3{1, 0, 0})
+	model = model.Mul4(mgl32.Scale3D(2, 2, 2))
 	modelUniform := gl.GetUniformLocation(shaderProgram, gl.Str("model\x00"))
 	gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
@@ -120,6 +121,7 @@ func render(window *glfw.Window) {
 	projUniform := gl.GetUniformLocation(shaderProgram, gl.Str("projection\x00"))
 	gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
 
+	//angle := 0
 	//previousTime := glfw.GetTime()
 	for !window.ShouldClose() {
 		processInput(window)
@@ -143,6 +145,8 @@ func render(window *glfw.Window) {
 		//
 		//gl.BindVertexArray(vao)
 		//gl.DrawArrays(gl.TRIANGLES, 0, 3)
+
+		model = model.Mul4(mgl32.HomogRotate3D(mgl32.DegToRad(1), mgl32.Vec3{0, 0, 1}))
 
 		gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
 		gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
