@@ -10,7 +10,6 @@ import (
 	"image/draw"
 	_ "image/png"
 	"log"
-	"math"
 	"os"
 	"runtime"
 )
@@ -105,22 +104,32 @@ func render(window *glfw.Window) {
 	// Every shader and rendering call after glUseProgram will now use this program object (and thus the shaders).
 	gl.UseProgram(shaderProgram)
 
-	var angle float64 = 0
 	model := mgl32.Ident4()
 	//model = model.Mul4(mgl32.Translate3D(1.0, 0, 0))
+	model = mgl32.HomogRotate3D(mgl32.DegToRad(-55), mgl32.Vec3{1, 0, 0})
 	modelUniform := gl.GetUniformLocation(shaderProgram, gl.Str("model\x00"))
 	gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
-	previousTime := glfw.GetTime()
+	view := mgl32.Ident4()
+	view = view.Mul4(mgl32.Translate3D(0, 0, -3))
+	viewUniform := gl.GetUniformLocation(shaderProgram, gl.Str("view\x00"))
+	gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
+
+	projection := mgl32.Perspective(mgl32.DegToRad(45), windowWidth/float32(windowHeight), 0.1, 100)
+	projection = projection.Mul4(mgl32.Translate3D(0, 0, -3))
+	projUniform := gl.GetUniformLocation(shaderProgram, gl.Str("projection\x00"))
+	gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
+
+	//previousTime := glfw.GetTime()
 	for !window.ShouldClose() {
 		processInput(window)
 
 		gl.ClearColor(0.39, 0.39, 0.39, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
-		time := glfw.GetTime()
-		elapsed := time - previousTime
-		previousTime = time
+		//time := glfw.GetTime()
+		//elapsed := time - previousTime
+		//previousTime = time
 
 		// 2. use our shader program when we want to render an object
 		gl.UseProgram(shaderProgram)
@@ -135,11 +144,9 @@ func render(window *glfw.Window) {
 		//gl.BindVertexArray(vao)
 		//gl.DrawArrays(gl.TRIANGLES, 0, 3)
 
-		angle += elapsed
-		model = mgl32.Scale3D(float32(math.Sin(angle))*3, float32(math.Sin(angle))*3, 1.0)
+		gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
+		gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
-
-		//log.Printf("%v\n", angle)
 
 		// Use ebo / index
 		gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
