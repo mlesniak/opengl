@@ -156,11 +156,11 @@ func render(window *glfw.Window) {
 	gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
 	camPos := mgl32.Vec3{0, 1, 3}
-	camFront := mgl32.Vec3{0, 0, 0}
+	camFront := mgl32.Vec3{0, 0, -1}
 	camUp := mgl32.Vec3{0, 1, 0}
 
-	view := mgl32.LookAtV(camPos, camFront, camUp)
 	viewUniform := gl.GetUniformLocation(shaderProgram, gl.Str("view\x00"))
+	view := mgl32.LookAtV(camPos, camPos.Add(camFront), camUp)
 	gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
 
 	projection := mgl32.Perspective(mgl32.DegToRad(45), windowWidth/float32(windowHeight), 0.1, 100)
@@ -174,6 +174,25 @@ func render(window *glfw.Window) {
 	//previousTime := glfw.GetTime()
 	for !window.ShouldClose() {
 		processInput(window)
+		if window.GetKey(glfw.KeyEscape) == glfw.Press {
+			window.SetShouldClose(true)
+		}
+
+		var camSpeed float32 = 0.05
+		if window.GetKey(glfw.KeyUp) == glfw.Press {
+			camPos = camPos.Add(camFront.Mul(camSpeed))
+		}
+		if window.GetKey(glfw.KeyDown) == glfw.Press {
+			camPos = camPos.Sub(camFront.Mul(camSpeed))
+		}
+		if window.GetKey(glfw.KeyLeft) == glfw.Press {
+			x := camFront.Cross(camUp).Normalize().Mul(camSpeed)
+			camPos = camPos.Sub(x)
+		}
+		if window.GetKey(glfw.KeyRight) == glfw.Press {
+			x := camFront.Cross(camUp).Normalize().Mul(camSpeed)
+			camPos = camPos.Add(x)
+		}
 
 		gl.ClearColor(0.39, 0.39, 0.39, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -194,6 +213,9 @@ func render(window *glfw.Window) {
 		//
 		//gl.BindVertexArray(vao)
 		//gl.DrawArrays(gl.TRIANGLES, 0, 3)
+
+		view := mgl32.LookAtV(camPos, camPos.Add(camFront), camUp)
+		gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
 
 		angle++
 		model = mgl32.Ident4()
