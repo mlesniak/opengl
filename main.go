@@ -155,7 +155,11 @@ func render(window *glfw.Window) {
 	modelUniform := gl.GetUniformLocation(shaderProgram, gl.Str("model\x00"))
 	gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
-	view := mgl32.LookAt(0, 1.5, 2, 0, 0, 0, 0, 1, 0)
+	camPos := mgl32.Vec3{0, 1, 3}
+	camFront := mgl32.Vec3{0, 0, 0}
+	camUp := mgl32.Vec3{0, 1, 0}
+
+	view := mgl32.LookAtV(camPos, camFront, camUp)
 	viewUniform := gl.GetUniformLocation(shaderProgram, gl.Str("view\x00"))
 	gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
 
