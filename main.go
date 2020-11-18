@@ -25,8 +25,36 @@ func init() {
 	runtime.LockOSThread()
 }
 
+func initializeWindow() *glfw.Window {
+	if err := glfw.Init(); err != nil {
+		log.Fatalln("failed to initializeWindow glfw:", err)
+	}
+
+	glfw.WindowHint(glfw.Resizable, glfw.False)
+	glfw.WindowHint(glfw.ContextVersionMajor, 4)
+	glfw.WindowHint(glfw.ContextVersionMinor, 1)
+	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
+	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
+
+	window, err := glfw.CreateWindow(windowWidth, windowHeight, "Cube", nil, nil)
+	if err != nil {
+		panic(err)
+	}
+	window.MakeContextCurrent()
+
+	// Initialize Glow
+	if err := gl.Init(); err != nil {
+		panic(err)
+	}
+
+	version := gl.GoStr(gl.GetString(gl.VERSION))
+	log.Println("OpenGL version", version)
+
+	return window
+}
+
 func main() {
-	window := initialize()
+	window := initializeWindow()
 	render(window)
 	glfw.Terminate()
 }
@@ -39,6 +67,7 @@ func render(window *glfw.Window) {
 	var vao uint32
 	gl.GenVertexArrays(1, &vao)
 	gl.BindVertexArray(vao)
+	log.Print("Created vao")
 
 	// Send cube to GPU memory for later consumption.
 	// Copy our cube array (including other data such as colors, texture information)
@@ -47,11 +76,13 @@ func render(window *glfw.Window) {
 	gl.GenBuffers(1, &vbo)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, SizeFloat32*len(model.Cube), gl.Ptr(model.Cube), gl.STATIC_DRAW)
+	log.Print("Created vbo and stored vertices")
 
 	// Set the vertex attributes pointers, i.e. configure where vertex pointers are located
 	// to be used in location 0 in the vertex shader.
 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 3, nil)
 	gl.EnableVertexAttribArray(0)
+	log.Print("Bound vertices to location")
 
 	// Compile shaders.
 	vertexShader, err := shader.Compile(shader.Vertex, "vertex.shader")
@@ -62,6 +93,7 @@ func render(window *glfw.Window) {
 	if err != nil {
 		log.Fatalf("error compiling fragment shader: %v", err)
 	}
+	log.Print("Compiled shader")
 
 	// Create a program to combine shaders.
 	var program uint32
@@ -71,6 +103,7 @@ func render(window *glfw.Window) {
 	gl.LinkProgram(program)
 	gl.DeleteShader(vertexShader)
 	gl.DeleteShader(fragmentShader)
+	log.Print("Created program")
 
 	// Create matrices for view.
 	model := mgl32.Ident4()
@@ -84,9 +117,10 @@ func render(window *glfw.Window) {
 	gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
 
 	projection := mgl32.Perspective(mgl32.DegToRad(60), windowWidth/float32(windowHeight), 0.1, 100)
-	//projection = projection.Mul4(mgl32.Translate3D(0, 0, -3))
+	projection = projection.Mul4(mgl32.Translate3D(0, 0, -3))
 	projUniform := gl.GetUniformLocation(program, gl.Str("projection\x00"))
 	gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
+	log.Print("Matrices initialized")
 
 	// Configuration for movement.
 	yaw := float32(-90.0)
@@ -100,14 +134,15 @@ func render(window *glfw.Window) {
 		processMouse(&initialMove, lastX, xpos, lastY, ypos, yaw, pitch)
 	})
 
-	var deltaTime float32 = 0
-	var lastFrame float64 = 0
+	//var deltaTime float32 = 0
+	//var lastFrame float64 = 0
+	log.Print("Starting rendering loop")
 	for !window.ShouldClose() {
-		currentFrame := glfw.GetTime()
-		deltaTime = float32(currentFrame - lastFrame)
-		lastFrame = currentFrame
+		//currentFrame := glfw.GetTime()
+		//deltaTime = float32(currentFrame - lastFrame)
+		//lastFrame = currentFrame
 
-		processInput(window, deltaTime)
+		//processKeyboard(window, deltaTime)
 
 		gl.ClearColor(0.39, 0.39, 0.39, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -161,7 +196,7 @@ func processMouse(initialMove *bool, lastX float64, xpos float64, lastY float64,
 	camFront = v3.Normalize()
 }
 
-func processInput(window *glfw.Window, deltaTime float32) {
+func processKeyboard(window *glfw.Window, deltaTime float32) {
 	if window.GetKey(glfw.KeyEscape) == glfw.Press {
 		window.SetShouldClose(true)
 	}
@@ -180,32 +215,4 @@ func processInput(window *glfw.Window, deltaTime float32) {
 		x := camFront.Cross(camUp).Normalize().Mul(camSpeed)
 		camPos = camPos.Add(x)
 	}
-}
-
-func initialize() *glfw.Window {
-	if err := glfw.Init(); err != nil {
-		log.Fatalln("failed to initialize glfw:", err)
-	}
-
-	glfw.WindowHint(glfw.Resizable, glfw.False)
-	glfw.WindowHint(glfw.ContextVersionMajor, 4)
-	glfw.WindowHint(glfw.ContextVersionMinor, 1)
-	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
-	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
-
-	window, err := glfw.CreateWindow(windowWidth, windowHeight, "Cube", nil, nil)
-	if err != nil {
-		panic(err)
-	}
-	window.MakeContextCurrent()
-
-	// Initialize Glow
-	if err := gl.Init(); err != nil {
-		panic(err)
-	}
-
-	version := gl.GoStr(gl.GetString(gl.VERSION))
-	log.Println("OpenGL version", version)
-
-	return window
 }
