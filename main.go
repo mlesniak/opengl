@@ -75,11 +75,11 @@ func render(window *glfw.Window) {
 	// Send cube to GPU memory for later consumption.
 	// Copy our cube array (including other data such as colors, texture information)
 	// in a memory buffer for OpenGL to use.
-	var vbo uint32
-	gl.GenBuffers(1, &vbo)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	var cube uint32
+	gl.GenBuffers(1, &cube)
+	gl.BindBuffer(gl.ARRAY_BUFFER, cube)
 	gl.BufferData(gl.ARRAY_BUFFER, SizeFloat32*len(models.Cube), gl.Ptr(models.Cube), gl.STATIC_DRAW)
-	log.Print("Created vbo and stored vertices")
+	log.Print("Created cube and stored vertices")
 
 	// Set the vertex attributes pointers, i.e. configure where vertex pointers are located
 	// to be used in location 0 in the vertex shader.
