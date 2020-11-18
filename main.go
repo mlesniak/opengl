@@ -80,7 +80,7 @@ func render(window *glfw.Window) {
 
 	// Set the vertex attributes pointers, i.e. configure where vertex pointers are located
 	// to be used in location 0 in the vertex shader.
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 3, nil)
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, int32(3*SizeFloat32), nil)
 	gl.EnableVertexAttribArray(0)
 	log.Print("Bound vertices to location")
 
@@ -134,15 +134,15 @@ func render(window *glfw.Window) {
 		processMouse(&initialMove, lastX, xpos, lastY, ypos, yaw, pitch)
 	})
 
-	//var deltaTime float32 = 0
-	//var lastFrame float64 = 0
+	var deltaTime float32 = 0
+	var lastFrame float64 = 0
 	log.Print("Starting rendering loop")
 	for !window.ShouldClose() {
-		//currentFrame := glfw.GetTime()
-		//deltaTime = float32(currentFrame - lastFrame)
-		//lastFrame = currentFrame
+		currentFrame := glfw.GetTime()
+		deltaTime = float32(currentFrame - lastFrame)
+		lastFrame = currentFrame
 
-		//processKeyboard(window, deltaTime)
+		processKeyboard(window, deltaTime)
 
 		gl.ClearColor(0.39, 0.39, 0.39, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
