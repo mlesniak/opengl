@@ -4,7 +4,7 @@ import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/mlesniak/opengl/model"
+	models "github.com/mlesniak/opengl/model"
 	"github.com/mlesniak/opengl/shader"
 	_ "image/png"
 	"log"
@@ -75,7 +75,7 @@ func render(window *glfw.Window) {
 	var vbo uint32
 	gl.GenBuffers(1, &vbo)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, SizeFloat32*len(model.Cube), gl.Ptr(model.Cube), gl.STATIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, SizeFloat32*len(models.Cube), gl.Ptr(models.Cube), gl.STATIC_DRAW)
 	log.Print("Created vbo and stored vertices")
 
 	// Set the vertex attributes pointers, i.e. configure where vertex pointers are located
