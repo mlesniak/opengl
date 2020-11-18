@@ -12,6 +12,9 @@ import (
 	"runtime"
 )
 
+// TODO(mlesniak) add plane
+// TODO(mlesniak) add diffuse lightning
+
 const windowWidth = 800
 const windowHeight = 600
 
