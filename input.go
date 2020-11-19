@@ -49,6 +49,12 @@ func processKeyboard(window *glfw.Window, deltaTime float32) {
 	if window.GetKey(glfw.KeyS) == glfw.Press {
 		camPos = camPos.Sub(camFront.Mul(camSpeed))
 	}
+	if window.GetKey(glfw.KeyQ) == glfw.Press {
+		camPos = camPos.Add(camUp.Mul(camSpeed))
+	}
+	if window.GetKey(glfw.KeyX) == glfw.Press {
+		camPos = camPos.Sub(camUp.Mul(camSpeed))
+	}
 	if window.GetKey(glfw.KeyA) == glfw.Press {
 		x := camFront.Cross(camUp).Normalize().Mul(camSpeed)
 		camPos = camPos.Sub(x)

@@ -6,14 +6,11 @@ import (
 	"runtime"
 )
 
-// TODO(mlesniak) add plane
-// TODO(mlesniak) add diffuse lightning
-
 const windowWidth = 800
 const windowHeight = 600
 
-// TODO(mlesniak) show plane first
-// TODO(mlesniak) struct
+// TODO(mlesniak) Each object has own color
+// TODO(mlesniak) add diffuse lightning
 // TODO(mlesniak) General refactoring for render loop based on objects
 
 func init() {
