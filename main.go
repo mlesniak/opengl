@@ -94,31 +94,31 @@ func render(window *glfw.Window) {
 	gl.DeleteShader(fragmentShader)
 	log.Print("Created program")
 
-	//model := mgl32.Ident4()
-	//modelUniform := gl.GetUniformLocation(program, gl.Str("model\x00"))
-	//gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
-	//
-	//view := mgl32.LookAtV(camPos, camPos.Add(camFront), camUp)
-	//viewUniform := gl.GetUniformLocation(program, gl.Str("view\x00"))
-	//gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
-	//
-	//projection := mgl32.Perspective(mgl32.DegToRad(60), windowWidth/float32(windowHeight), 0.1, 100)
-	//projection = projection.Mul4(mgl32.Translate3D(0, 0, -3))
-	//projUniform := gl.GetUniformLocation(program, gl.Str("projection\x00"))
-	//gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
-	//log.Print("Matrices initialized")
-	//
-	//// Configuration for movement.
-	//yaw := float32(-90.0)
-	//pitch := float32(0.0)
-	//initialMove := true
+	model := mgl32.Ident4()
+	modelUniform := gl.GetUniformLocation(program, gl.Str("model\x00"))
+	gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
-	//lastX := float64(windowWidth / 2)
-	//lastY := float64(windowHeight / 2)
-	//window.SetInputMode(glfw.CursorMode, glfw.CursorDisabled)
-	//window.SetCursorPosCallback(func(w *glfw.Window, xpos float64, ypos float64) {
-	//	processMouse(&initialMove, lastX, xpos, lastY, ypos, yaw, pitch)
-	//})
+	view := mgl32.LookAtV(camPos, camPos.Add(camFront), camUp)
+	viewUniform := gl.GetUniformLocation(program, gl.Str("view\x00"))
+	gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
+
+	projection := mgl32.Perspective(mgl32.DegToRad(60), windowWidth/float32(windowHeight), 0.1, 100)
+	projection = projection.Mul4(mgl32.Translate3D(0, 0, -3))
+	projUniform := gl.GetUniformLocation(program, gl.Str("projection\x00"))
+	gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
+	log.Print("Matrices initialized")
+
+	// Configuration for movement.
+	yaw := float32(-90.0)
+	pitch := float32(0.0)
+	initialMove := true
+
+	lastX := float64(windowWidth / 2)
+	lastY := float64(windowHeight / 2)
+	window.SetInputMode(glfw.CursorMode, glfw.CursorDisabled)
+	window.SetCursorPosCallback(func(w *glfw.Window, xpos float64, ypos float64) {
+		processMouse(&initialMove, lastX, xpos, lastY, ypos, yaw, pitch)
+	})
 
 	var deltaTime float32 = 0
 	var lastFrame float64 = 0
@@ -138,19 +138,20 @@ func render(window *glfw.Window) {
 		gl.UseProgram(program)
 
 		// Update all matrices.
-		//view := mgl32.LookAtV(camPos, camPos.Add(camFront), camUp)
-		//gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
-		//gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
-		//gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
+		view := mgl32.LookAtV(camPos, camPos.Add(camFront), camUp)
+		gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
+		gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
+		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
 		//gl.BindVertexArray(cube)
 		//gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Cube)/3))
 
 		gl.BindVertexArray(plane)
-		//model = mgl32.HomogRotate3D(mgl32.DegToRad(90), mgl32.Vec3{1, 0, 0})
+		model = mgl32.HomogRotate3DX(mgl32.DegToRad(-90))
+		model = model.Mul4(mgl32.Scale3D(20, 20, 1))
+		model = model.Mul4(mgl32.Translate3D(-0.5, -0.5, 0.0))
 		//model = model.Mul4(mgl32.Scale3D(10, 10, 10))
-		//gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
-		//gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Plane)/3))
+		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Plane)/3))
 
 		window.SwapBuffers()
