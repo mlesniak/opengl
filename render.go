@@ -81,11 +81,9 @@ func render(window *glfw.Window) {
 	gl.DeleteShader(fragmentShader)
 	log.Print("Created program")
 
-	color is not submitted to vertex shader
 	col := gl.GetUniformLocation(program, gl.Str("col\x00"))
 	//gl.Uniform3fv(col, 3, &models.Plane[0])
 	gl.Uniform3f(col, 1.0, 0, 1.0)
-
 
 	model := mgl32.Ident4()
 	modelUniform := gl.GetUniformLocation(program, gl.Str("model\x00"))
@@ -111,6 +109,11 @@ func render(window *glfw.Window) {
 	window.SetInputMode(glfw.CursorMode, glfw.CursorDisabled)
 	window.SetCursorPosCallback(func(w *glfw.Window, xpos float64, ypos float64) {
 		processMouse(&initialMove, lastX, xpos, lastY, ypos, yaw, pitch)
+	})
+
+	window.SetScrollCallback(func(w *glfw.Window, xoff float64, yoff float64) {
+		camSpeed := -yoff * 0.2
+		camPos = camPos.Add(camUp.Mul(float32(camSpeed)))
 	})
 
 	var deltaTime float32 = 0
