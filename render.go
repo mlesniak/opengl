@@ -81,9 +81,7 @@ func render(window *glfw.Window) {
 	gl.DeleteShader(fragmentShader)
 	log.Print("Created program")
 
-	col := gl.GetUniformLocation(program, gl.Str("col\x00"))
-	//gl.Uniform3fv(col, 3, &models.Plane[0])
-	gl.Uniform3f(col, 1.0, 0, 1.0)
+	gl.UseProgram(program)
 
 	model := mgl32.Ident4()
 	modelUniform := gl.GetUniformLocation(program, gl.Str("model\x00"))
@@ -98,6 +96,10 @@ func render(window *glfw.Window) {
 	projUniform := gl.GetUniformLocation(program, gl.Str("projection\x00"))
 	gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
 	log.Print("Matrices initialized")
+
+	colorUniform := gl.GetUniformLocation(program, gl.Str("color\x00"))
+	gl.Uniform3fv(colorUniform, 1, &models.Plane[0])
+	//gl.Uniform3f(colorUniform, 1.0, 1, 0)
 
 	// Configuration for movement.
 	yaw := float32(-90.0)
