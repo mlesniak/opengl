@@ -151,7 +151,7 @@ func render(window *glfw.Window) {
 		//model = model.Mul4(mgl32.Scale3D(10, 10, 10))
 		//gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 		//gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Plane)/3))
-		gl.DrawArrays(gl.TRIANGLES, 0, 9)
+		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Plane)/3))
 
 		window.SwapBuffers()
 		glfw.PollEvents()
