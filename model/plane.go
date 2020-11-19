@@ -2,7 +2,7 @@ package model
 
 var Plane = []float32{
 	//Color
-	//+0.5, +0.0, +0.0,
+	+0.5, +0.0, +0.0,
 
 	// Vertices
 	+0.0, +0.0, +0.0,

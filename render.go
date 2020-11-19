@@ -54,9 +54,13 @@ func render(window *glfw.Window) {
 	var planeData uint32
 	gl.GenBuffers(1, &planeData)
 	gl.BindBuffer(gl.ARRAY_BUFFER, planeData)
-	gl.BufferData(gl.ARRAY_BUFFER, SizeFloat32*len(models.Plane), gl.Ptr(models.Plane), gl.STATIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, SizeFloat32*len(models.Plane), gl.Ptr(&models.Plane[3]), gl.STATIC_DRAW)
+
 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, int32(3*SizeFloat32), nil)
 	gl.EnableVertexAttribArray(0)
+
+	var program uint32
+	program = gl.CreateProgram()
 
 	// Compile shaders.
 	vertexShader, err := shader.Compile(shader.Vertex, "vertex.shader")
@@ -70,14 +74,18 @@ func render(window *glfw.Window) {
 	log.Print("Compiled shader")
 
 	// Create a program to combine shaders.
-	var program uint32
-	program = gl.CreateProgram()
 	gl.AttachShader(program, vertexShader)
 	gl.AttachShader(program, fragmentShader)
 	gl.LinkProgram(program)
 	gl.DeleteShader(vertexShader)
 	gl.DeleteShader(fragmentShader)
 	log.Print("Created program")
+
+	color is not submitted to vertex shader
+	col := gl.GetUniformLocation(program, gl.Str("col\x00"))
+	//gl.Uniform3fv(col, 3, &models.Plane[0])
+	gl.Uniform3f(col, 1.0, 0, 1.0)
+
 
 	model := mgl32.Ident4()
 	modelUniform := gl.GetUniformLocation(program, gl.Str("model\x00"))
