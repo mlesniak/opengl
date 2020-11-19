@@ -42,7 +42,7 @@ func processKeyboard(window *glfw.Window, deltaTime float32) {
 	if window.GetKey(glfw.KeyEscape) == glfw.Press {
 		window.SetShouldClose(true)
 	}
-	var camSpeed = 5 * deltaTime
+	var camSpeed = 40 * deltaTime
 	if window.GetKey(glfw.KeyW) == glfw.Press {
 		camPos = camPos.Add(camFront.Mul(camSpeed))
 	}
