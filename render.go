@@ -10,7 +10,6 @@ import (
 	"log"
 )
 
-// TODO(mlesniak) Static light source?
 // TODO(mlesniak) struct
 // TODO(mlesniak) General refactoring for render loop based on objects
 
@@ -52,8 +51,10 @@ func render(window *glfw.Window) {
 	gl.GenBuffers(1, &planeData)
 	gl.BindBuffer(gl.ARRAY_BUFFER, planeData)
 	gl.BufferData(gl.ARRAY_BUFFER, SizeFloat32*len(models.Plane), gl.Ptr(&models.Plane[3]), gl.STATIC_DRAW)
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, int32(3*SizeFloat32), nil)
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, int32(6*SizeFloat32), nil)
 	gl.EnableVertexAttribArray(0)
+	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, int32(6*SizeFloat32), gl.PtrOffset(3*SizeFloat32))
+	gl.EnableVertexAttribArray(1)
 
 	program := createProgram()
 
@@ -113,7 +114,7 @@ func render(window *glfw.Window) {
 		gl.UseProgram(program)
 
 		//gl.Uniform3f(lightPos, camPos.X(), camPos.Y(), camPos.Z())
-		gl.Uniform3f(lightPos, 0, 5, 5)
+		gl.Uniform3f(lightPos, 0, 10, 15)
 
 		// Update all matrices.
 		view := mgl32.LookAtV(camPos, camPos.Add(camFront), camUp)
