@@ -14,7 +14,7 @@ import (
 // TODO(mlesniak) struct
 // TODO(mlesniak) General refactoring for render loop based on objects
 
-var camPos = mgl32.Vec3{0, 1, 3}
+var camPos = mgl32.Vec3{0, 3, 3}
 var camFront = mgl32.Vec3{0, 0, -1}
 var camUp = mgl32.Vec3{0, 1, 0}
 
