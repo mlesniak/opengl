@@ -40,10 +40,10 @@ func render(window *glfw.Window) {
 	gl.BufferData(gl.ARRAY_BUFFER, SizeFloat32*len(models.Cube), gl.Ptr(&models.Cube[3]), gl.STATIC_DRAW)
 	log.Print("Created cubeData and stored vertices")
 
-	// Set the vertex attributes pointers, i.e. configure where vertex pointers are located
-	// to be used in location 0 in the vertex shader.
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, int32(3*SizeFloat32), nil)
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, int32(6*SizeFloat32), nil)
 	gl.EnableVertexAttribArray(0)
+	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, int32(6*SizeFloat32), gl.PtrOffset(3*SizeFloat32))
+	gl.EnableVertexAttribArray(1)
 	log.Print("Bound vertices to location")
 
 	var plane uint32
@@ -79,6 +79,8 @@ func render(window *glfw.Window) {
 	colorUniform := gl.GetUniformLocation(program, gl.Str("color\x00"))
 	//gl.Uniform3f(colorUniform, 1.0, 1, 0)
 
+	lightPos := gl.GetUniformLocation(program, gl.Str("lightPos\x00"))
+
 	// Configuration for movement.
 	yaw := float32(-90.0)
 	pitch := float32(0.0)
@@ -112,6 +114,8 @@ func render(window *glfw.Window) {
 		// Use our predefined vertex and fragment shaders to render
 		// vertext data wrapped into the plane.
 		gl.UseProgram(program)
+
+		gl.Uniform3f(lightPos, camPos.X(), camPos.Y(), camPos.Z())
 
 		// Update all matrices.
 		view := mgl32.LookAtV(camPos, camPos.Add(camFront), camUp)
