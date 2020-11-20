@@ -17,6 +17,12 @@ var camPos = mgl32.Vec3{0, 3, 3}
 var camFront = mgl32.Vec3{0, 0, -1}
 var camUp = mgl32.Vec3{0, 1, 0}
 
+var lastX = float64(windowWidth / 2)
+var lastY = float64(windowHeight / 2)
+
+var yaw = float32(-90.0)
+var pitch = float32(0.0)
+
 func render(window *glfw.Window) {
 	// General openGL configuration.
 	gl.Enable(gl.DEPTH_TEST)
@@ -80,23 +86,20 @@ func render(window *glfw.Window) {
 	lightPos := gl.GetUniformLocation(program, gl.Str("lightPos\x00"))
 
 	// Configuration for movement.
-	yaw := float32(-90.0)
-	pitch := float32(0.0)
+
 	initialMove := true
 
-	lastX := float64(windowWidth / 2)
-	lastY := float64(windowHeight / 2)
 	window.SetInputMode(glfw.CursorMode, glfw.CursorDisabled)
 	window.SetCursorPosCallback(func(w *glfw.Window, xpos float64, ypos float64) {
-		processMouse(&initialMove, lastX, xpos, lastY, ypos, yaw, pitch)
+		processMouse(&initialMove, xpos, ypos)
 	})
 
 	window.SetScrollCallback(func(w *glfw.Window, xoff float64, yoff float64) {
 		camSpeed := yoff * 0.2
 		camPos = camPos.Add(camUp.Mul(float32(camSpeed)))
 
-		if camPos.Y() <= 1 {
-			camPos = mgl32.Vec3{camPos.X(), 0.5, camPos.Z()}
+		if camPos.Y() <= 0.1 {
+			camPos = mgl32.Vec3{camPos.X(), 0.1, camPos.Z()}
 		}
 	})
 

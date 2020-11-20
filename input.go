@@ -7,7 +7,7 @@ import (
 	"math"
 )
 
-func processMouse(initialMove *bool, lastX float64, xpos float64, lastY float64, ypos float64, yaw float32, pitch float32) {
+func processMouse(initialMove *bool, xpos float64, ypos float64) {
 	if *initialMove {
 		lastX = xpos
 		lastY = ypos
@@ -24,8 +24,8 @@ func processMouse(initialMove *bool, lastX float64, xpos float64, lastY float64,
 
 	yaw += float32(xoffset)
 	pitch -= float32(yoffset)
-	if pitch > 89 {
-		pitch = 89
+	if pitch > 0.1 {
+		pitch = 0.1
 	}
 	if pitch < -89 {
 		pitch = -89
@@ -64,7 +64,7 @@ func processKeyboard(window *glfw.Window, deltaTime float32) {
 		camPos = camPos.Add(x)
 	}
 
-	if camPos.Y() <= 1 {
-		camPos = mgl32.Vec3{camPos.X(), 0.5, camPos.Z()}
+	if camPos.Y() <= 0.1 {
+		camPos = mgl32.Vec3{camPos.X(), 0.1, camPos.Z()}
 	}
 }
