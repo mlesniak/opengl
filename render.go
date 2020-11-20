@@ -92,7 +92,7 @@ func render(window *glfw.Window) {
 	})
 
 	window.SetScrollCallback(func(w *glfw.Window, xoff float64, yoff float64) {
-		camSpeed := -yoff * 0.2
+		camSpeed := yoff * 0.2
 		camPos = camPos.Add(camUp.Mul(float32(camSpeed)))
 	})
 
