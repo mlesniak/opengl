@@ -100,6 +100,7 @@ func render(window *glfw.Window) {
 		}
 	})
 
+	// TODO(mlesniak) phone shading?
 	// TODO(mlesniak) Display frame rate.
 	// TODO(mlesniak) Fullscreen mode?
 	var deltaTime float32 = 0
