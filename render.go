@@ -10,7 +10,6 @@ import (
 	"log"
 )
 
-// TODO(mlesniak) Shadows based on difficulty?
 // TODO(mlesniak) struct
 // TODO(mlesniak) General refactoring for render loop based on objects
 
@@ -95,8 +94,14 @@ func render(window *glfw.Window) {
 	window.SetScrollCallback(func(w *glfw.Window, xoff float64, yoff float64) {
 		camSpeed := yoff * 0.2
 		camPos = camPos.Add(camUp.Mul(float32(camSpeed)))
+
+		if camPos.Y() <= 1 {
+			camPos = mgl32.Vec3{camPos.X(), 0.5, camPos.Z()}
+		}
 	})
 
+	// TODO(mlesniak) Display frame rate.
+	// TODO(mlesniak) Fullscreen mode?
 	var deltaTime float32 = 0
 	var lastFrame float64 = 0
 	log.Print("Starting rendering loop")
@@ -114,8 +119,8 @@ func render(window *glfw.Window) {
 		// vertext data wrapped into the plane.
 		gl.UseProgram(program)
 
-		//gl.Uniform3f(lightPos, camPos.X(), camPos.Y(), camPos.Z())
-		gl.Uniform3f(lightPos, 0, 10, 15)
+		gl.Uniform3f(lightPos, camPos.X(), camPos.Y()+3, camPos.Z())
+		//gl.Uniform3f(lightPos, 0, 10, 15)
 
 		// Update all matrices.
 		view := mgl32.LookAtV(camPos, camPos.Add(camFront), camUp)

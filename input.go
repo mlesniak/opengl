@@ -63,4 +63,8 @@ func processKeyboard(window *glfw.Window, deltaTime float32) {
 		x := camFront.Cross(camUp).Normalize().Mul(camSpeed)
 		camPos = camPos.Add(x)
 	}
+
+	if camPos.Y() <= 1 {
+		camPos = mgl32.Vec3{camPos.X(), 0.5, camPos.Z()}
+	}
 }
