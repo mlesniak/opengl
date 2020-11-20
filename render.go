@@ -10,6 +10,7 @@ import (
 	"log"
 )
 
+// TODO(mlesniak) Shadows based on difficulty?
 // TODO(mlesniak) struct
 // TODO(mlesniak) General refactoring for render loop based on objects
 
