@@ -10,10 +10,7 @@ import (
 	"log"
 )
 
-// TODO(mlesniak) add cube
-// TODO(mlesniak) add diffuse lightning
-
-// TODO(mlesniak) show plane first
+// TODO(mlesniak) Static light source?
 // TODO(mlesniak) struct
 // TODO(mlesniak) General refactoring for render loop based on objects
 
@@ -115,7 +112,8 @@ func render(window *glfw.Window) {
 		// vertext data wrapped into the plane.
 		gl.UseProgram(program)
 
-		gl.Uniform3f(lightPos, camPos.X(), camPos.Y(), camPos.Z())
+		//gl.Uniform3f(lightPos, camPos.X(), camPos.Y(), camPos.Z())
+		gl.Uniform3f(lightPos, 0, 5, 5)
 
 		// Update all matrices.
 		view := mgl32.LookAtV(camPos, camPos.Add(camFront), camUp)
