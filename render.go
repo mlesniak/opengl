@@ -112,10 +112,17 @@ func render(window *glfw.Window) {
 	})
 
 	// TODO(mlesniak) phone shading?
-	// TODO(mlesniak) Display frame rate.
 	// TODO(mlesniak) Fullscreen mode?
 	var deltaTime float32 = 0
 	var lastFrame float64 = 0
+
+	//m := mgl32.Ident4()
+	//m := mgl32.HomogRotate3DX(mgl32.DegToRad(-90))
+	//m = model.Mul4(mgl32.Scale3D(20, 20, 1))
+	//m = model.Mul4(mgl32.Translate3D(-0.5, -0.5, 0.0))
+	//v2 := m.Mul4x1(mgl32.Vec4{0,0,1,0}).Normalize()
+	//fmt.Printf("%v\n", v2)
+	//os.Exit(1)
 
 	log.Print("Starting rendering loop")
 	for !window.ShouldClose() {

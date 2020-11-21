@@ -13,8 +13,11 @@ out vec3 objCol;
 out vec3 Normal;
 
 void main() {
+    vec4 x;
+
     gl_Position = projection * view * model * vec4(pos, 1.0);
     objCol = color;
-    Normal = aNormal;
+    x = model * vec4(aNormal, 0.0);
+    Normal = vec3(x.x, x.y, x.z);
     FragPos = vec3(model * vec4(pos, 1.0));
 }
