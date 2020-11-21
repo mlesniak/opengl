@@ -116,6 +116,7 @@ func render(window *glfw.Window) {
 	// TODO(mlesniak) Fullscreen mode?
 	var deltaTime float32 = 0
 	var lastFrame float64 = 0
+
 	log.Print("Starting rendering loop")
 	for !window.ShouldClose() {
 		currentFrame := glfw.GetTime()
@@ -128,7 +129,7 @@ func render(window *glfw.Window) {
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 		font.SetColor(1, 0, 0, 1)
-		font.Printf(10, 20, 1, "%v", deltaTime)
+		font.Printf(10, 20, 1, "%.2g", 1.0/deltaTime)
 
 		// Use our predefined vertex and fragment shaders to render
 		// vertext data wrapped into the plane.
