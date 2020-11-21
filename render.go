@@ -25,7 +25,6 @@ var pitch = float32(0.0)
 
 func render(window *glfw.Window) {
 	// General openGL configuration.
-	gl.Enable(gl.DEPTH_TEST)
 
 	// VAOs  store vertex attribute configuration and which VBOs to use.
 	var cube uint32

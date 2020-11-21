@@ -6,9 +6,9 @@ import (
 	"log"
 )
 
-func initializeWindow() *glfw.Window {
+func initializeGraphics() *glfw.Window {
 	if err := glfw.Init(); err != nil {
-		log.Fatalln("failed to initializeWindow glfw:", err)
+		log.Fatalln("failed to initializeGraphics glfw:", err)
 	}
 
 	glfw.WindowHint(glfw.Resizable, glfw.False)
@@ -16,21 +16,19 @@ func initializeWindow() *glfw.Window {
 	glfw.WindowHint(glfw.ContextVersionMinor, 1)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
+	glfw.WindowHint(glfw.Samples, 4) // MFAA / Antialiasing
 
-	// MFAA / Antialiasing
-	glfw.WindowHint(glfw.Samples, 4)
-
-	//window, err := glfw.CreateWindow(windowWidth, windowHeight, "Cube", glfw.GetPrimaryMonitor(), nil)
 	window, err := glfw.CreateWindow(windowWidth, windowHeight, "Cube", nil, nil)
 	if err != nil {
 		panic(err)
 	}
 	window.MakeContextCurrent()
 
-	// Initialize Glow
 	if err := gl.Init(); err != nil {
 		panic(err)
 	}
+
+	gl.Enable(gl.DEPTH_TEST)
 
 	version := gl.GoStr(gl.GetString(gl.VERSION))
 	log.Println("OpenGL version", version)

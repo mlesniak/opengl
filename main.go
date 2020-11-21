@@ -15,7 +15,7 @@ func init() {
 }
 
 func main() {
-	window := initializeWindow()
+	window := initializeGraphics()
 	render(window)
 	glfw.Terminate()
 }
