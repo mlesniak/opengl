@@ -105,6 +105,9 @@ func render(window *glfw.Window) {
 	var deltaTime float32 = 0
 	var lastFrame float64 = 0
 
+	var scaleFactor float32 = 1.0
+	down := true
+
 	log.Print("Starting rendering loop")
 	for !window.ShouldClose() {
 		currentFrame := glfw.GetTime()
@@ -133,9 +136,20 @@ func render(window *glfw.Window) {
 		gl.Uniform3fv(colorUniform, 1, &models.Cube[0])
 		model = mgl32.Ident4()
 		model = model.Mul4(mgl32.Translate3D(0, 0.5, 0))
-		model = model.Mul4(mgl32.Scale3D(0.2, 0.2, 0.2))
+		model = model.Mul4(mgl32.Scale3D(scaleFactor, scaleFactor, scaleFactor))
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Cube)/3))
+		if down {
+			scaleFactor -= 0.01
+			if scaleFactor < 0.1 {
+				down = false
+			}
+		} else {
+			scaleFactor += 0.01
+			if scaleFactor > 1.0 {
+				down = true
+			}
+		}
 
 		model = mgl32.Ident4()
 		model = model.Mul4(mgl32.Translate3D(0, 1.5, 0))
