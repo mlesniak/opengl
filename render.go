@@ -130,7 +130,7 @@ func render(window *glfw.Window) {
 
 		processKeyboard(window, deltaTime)
 
-		gl.ClearColor(0.19, 0.19, 0.19, 1.0)
+		gl.ClearColor(0.39, 0.39, 0.39, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 		font.SetColor(1, 0, 0, 1)
