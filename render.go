@@ -36,7 +36,7 @@ func renderLoop(window *glfw.Window) {
 	viewUniform := gl.GetUniformLocation(program, gl.Str("view\x00"))
 	gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
 
-	projection := mgl32.Perspective(mgl32.DegToRad(60), windowWidth/float32(windowHeight), 0.1, 100)
+	projection := mgl32.Perspective(mgl32.DegToRad(60), windowWidth/float32(windowHeight), 0.1, 1000)
 	projection = projection.Mul4(mgl32.Translate3D(0, 0, -3))
 	projUniform := gl.GetUniformLocation(program, gl.Str("projection\x00"))
 	gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
@@ -71,7 +71,7 @@ func renderLoop(window *glfw.Window) {
 
 		gl.BindVertexArray(plane)
 		model = mgl32.HomogRotate3DX(mgl32.DegToRad(-90))
-		model = model.Mul4(mgl32.Scale3D(20, 20, 1))
+		model = model.Mul4(mgl32.Scale3D(200, 200, 1))
 		model = model.Mul4(mgl32.Translate3D(-0.5, -0.5, 0.0))
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 		gl.Uniform3fv(colorUniform, 1, &models.Plane[0])
