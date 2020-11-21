@@ -14,9 +14,20 @@ func init() {
 	runtime.LockOSThread()
 }
 
+type Scene struct {
+}
+
 func main() {
 	window := initializeGraphics()
 	setupInput(window)
-	renderLoop(window)
+
+	// Procedural generation happens here.
+	scene := createScene()
+
+	renderLoop(window, scene)
 	glfw.Terminate()
+}
+
+func createScene() Scene {
+	return Scene{}
 }

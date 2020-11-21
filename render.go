@@ -20,7 +20,7 @@ var lastY = float64(windowHeight / 2)
 var yaw = float32(-90.0)
 var pitch = float32(0.0)
 
-func renderLoop(window *glfw.Window) {
+func renderLoop(window *glfw.Window, scene Scene) {
 	cube := makeCube()
 	plane := makePlane()
 	program := createProgram()
@@ -73,6 +73,15 @@ func renderLoop(window *glfw.Window) {
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 		gl.Uniform3fv(colorUniform, 1, &models.Plane[0])
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Plane)/3))
+
+		// Use scene...
+		// objects
+		//
+		// list of vertices, normals
+		// color is ignored for now.
+		//
+		// primitives are loaded using vaos.
+		// object describes type, position, scale
 
 		gl.BindVertexArray(cube)
 		gl.Uniform3fv(colorUniform, 1, &models.Cube[0])
