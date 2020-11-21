@@ -46,32 +46,36 @@ func renderLoop(window *glfw.Window) {
 	lightPos := gl.GetUniformLocation(program, gl.Str("lightPos\x00"))
 
 	var deltaTime float32 = 0
-	var lastFrame float64 = 0
+	var lastFrameTime float64 = 0
 
 	log.Print("Starting rendering loop")
 	for !window.ShouldClose() {
-		currentFrame := glfw.GetTime()
-		deltaTime = float32(currentFrame - lastFrame)
-		lastFrame = currentFrame
+		currentFrameTime := glfw.GetTime()
+		deltaTime = float32(currentFrameTime - lastFrameTime)
+		lastFrameTime = currentFrameTime
 
 		processKeyboardInput(window, deltaTime)
 
 		gl.ClearColor(0.39, 0.39, 0.39, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-		// Use our predefined vertex and fragment shaders to renderLoop
-		// vertext data wrapped into the plane.
-		gl.UseProgram(program)
-
 		gl.Uniform3f(lightPos, camPos.X(), camPos.Y()+3, camPos.Z())
-		gl.Uniform3f(lightPos, camPos.X(), camPos.Y()+3, camPos.Z())
-		//gl.Uniform3f(lightPos, 0, 10, 15)
 
 		// Update all matrices.
 		view := mgl32.LookAtV(camPos, camPos.Add(camFront), camUp)
 		gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
 		gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
+
+		// TODO(mlesniak) draw objects with type?
+
+		gl.BindVertexArray(plane)
+		model = mgl32.HomogRotate3DX(mgl32.DegToRad(-90))
+		model = model.Mul4(mgl32.Scale3D(20, 20, 1))
+		model = model.Mul4(mgl32.Translate3D(-0.5, -0.5, 0.0))
+		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
+		gl.Uniform3fv(colorUniform, 1, &models.Plane[0])
+		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Plane)/3))
 
 		gl.BindVertexArray(cube)
 		gl.Uniform3fv(colorUniform, 1, &models.Cube[0])
@@ -80,51 +84,56 @@ func renderLoop(window *glfw.Window) {
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Cube)/3))
 
+		gl.BindVertexArray(cube)
+		gl.Uniform3fv(colorUniform, 1, &models.Cube[0])
 		model = mgl32.Ident4()
 		model = model.Mul4(mgl32.Translate3D(0, 1.5, 0))
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Cube)/3))
 
+		gl.BindVertexArray(cube)
+		gl.Uniform3fv(colorUniform, 1, &models.Cube[0])
 		model = mgl32.Ident4()
 		model = model.Mul4(mgl32.Translate3D(0, 2.5, 0))
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Cube)/3))
 
+		gl.BindVertexArray(cube)
+		gl.Uniform3fv(colorUniform, 1, &models.Cube[0])
 		model = mgl32.Ident4()
 		model = model.Mul4(mgl32.Translate3D(-1, 2.5, 0))
 		model = model.Mul4(mgl32.Scale3D(0.2, 0.2, 0.2))
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Cube)/3))
 
+		gl.BindVertexArray(cube)
+		gl.Uniform3fv(colorUniform, 1, &models.Cube[0])
 		model = mgl32.Ident4()
 		model = model.Mul4(mgl32.Translate3D(-2, 2.5, 0))
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Cube)/3))
 
+		gl.BindVertexArray(cube)
+		gl.Uniform3fv(colorUniform, 1, &models.Cube[0])
 		model = mgl32.Ident4()
 		model = model.Mul4(mgl32.Translate3D(-2, 0.5, 0))
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Cube)/3))
 
+		gl.BindVertexArray(cube)
+		gl.Uniform3fv(colorUniform, 1, &models.Cube[0])
 		model = mgl32.Ident4()
 		model = model.Mul4(mgl32.Translate3D(-2, 1.5, 0))
 		model = model.Mul4(mgl32.Scale3D(0.2, 0.2, 0.2))
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Cube)/3))
 
+		gl.BindVertexArray(cube)
+		gl.Uniform3fv(colorUniform, 1, &models.Cube[0])
 		model = mgl32.Ident4()
 		model = model.Mul4(mgl32.Translate3D(-2, 2.5, 0))
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Cube)/3))
-
-		gl.BindVertexArray(plane)
-		model = mgl32.HomogRotate3DX(mgl32.DegToRad(-90))
-		model = model.Mul4(mgl32.Scale3D(20, 20, 1))
-		model = model.Mul4(mgl32.Translate3D(-0.5, -0.5, 0.0))
-		//model = model.Mul4(mgl32.Scale3D(10, 10, 10))
-		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
-		gl.Uniform3fv(colorUniform, 1, &models.Plane[0])
-		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Plane)/3))
 
 		window.SwapBuffers()
 		glfw.PollEvents()
