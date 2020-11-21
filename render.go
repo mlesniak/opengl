@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/go-gl/gl/v4.1-core/gl"
+	"github.com/go-gl/gl/all-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/go-gl/mathgl/mgl32"
 	models "github.com/mlesniak/opengl/model"
 	"github.com/mlesniak/opengl/shader"
+	"github.com/nullboundary/glfont"
 	_ "image/png"
 	"log"
 )
@@ -23,7 +24,14 @@ var lastY = float64(windowHeight / 2)
 var yaw = float32(-90.0)
 var pitch = float32(0.0)
 
+var font *glfont.Font
+
 func render(window *glfw.Window) {
+	font, err := glfont.LoadFont("luxisr.ttf", int32(20), windowWidth, windowHeight)
+	if err != nil {
+		log.Panicf("LoadFont: %v", err)
+	}
+
 	// General openGL configuration.
 	gl.Enable(gl.DEPTH_TEST)
 
@@ -118,6 +126,9 @@ func render(window *glfw.Window) {
 
 		gl.ClearColor(0.19, 0.19, 0.19, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
+		font.SetColor(1, 0, 0, 1)
+		font.Printf(10, 20, 1, "%v", deltaTime)
 
 		// Use our predefined vertex and fragment shaders to render
 		// vertext data wrapped into the plane.
