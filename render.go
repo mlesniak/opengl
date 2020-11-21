@@ -23,47 +23,15 @@ var lastY = float64(windowHeight / 2)
 var yaw = float32(-90.0)
 var pitch = float32(0.0)
 
+// Primitives -> building blocks?
+type Render interface {
+	render(window *glfw.Window)
+}
+
 func render(window *glfw.Window) {
-	// General openGL configuration.
-
-	// VAOs  store vertex attribute configuration and which VBOs to use.
-	var cube uint32
-	gl.GenVertexArrays(1, &cube)
-	gl.BindVertexArray(cube)
-	log.Print("Created plane")
-
-	// Send cubeData to GPU memory for later consumption.
-	// Copy our cubeData array (including other data such as colors, texture information)
-	// in a memory buffer for OpenGL to use.
-	var cubeData uint32
-	gl.GenBuffers(1, &cubeData)
-	gl.BindBuffer(gl.ARRAY_BUFFER, cubeData)
-	gl.BufferData(gl.ARRAY_BUFFER, SizeFloat32*len(models.Cube), gl.Ptr(&models.Cube[3]), gl.STATIC_DRAW)
-	log.Print("Created cubeData and stored vertices")
-
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, int32(6*SizeFloat32), nil)
-	gl.EnableVertexAttribArray(0)
-	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, int32(6*SizeFloat32), gl.PtrOffset(3*SizeFloat32))
-	gl.EnableVertexAttribArray(1)
-	log.Print("Bound vertices to location")
-
-	var plane uint32
-	gl.GenVertexArrays(1, &plane)
-	gl.BindVertexArray(plane)
-	log.Print("Created plane")
-
-	var planeData uint32
-	gl.GenBuffers(1, &planeData)
-	gl.BindBuffer(gl.ARRAY_BUFFER, planeData)
-	gl.BufferData(gl.ARRAY_BUFFER, SizeFloat32*len(models.Plane), gl.Ptr(&models.Plane[3]), gl.STATIC_DRAW)
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, int32(6*SizeFloat32), nil)
-	gl.EnableVertexAttribArray(0)
-	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, int32(6*SizeFloat32), gl.PtrOffset(3*SizeFloat32))
-	gl.EnableVertexAttribArray(1)
-
+	cube := makeCube()
+	plane := makePlane()
 	program := createProgram()
-
-	gl.UseProgram(program)
 
 	model := mgl32.Ident4()
 	modelUniform := gl.GetUniformLocation(program, gl.Str("model\x00"))
@@ -80,14 +48,10 @@ func render(window *glfw.Window) {
 	log.Print("Matrices initialized")
 
 	colorUniform := gl.GetUniformLocation(program, gl.Str("color\x00"))
-	//gl.Uniform3f(colorUniform, 1.0, 1, 0)
-
 	lightPos := gl.GetUniformLocation(program, gl.Str("lightPos\x00"))
 
 	// Configuration for movement.
-
 	initialMove := true
-
 	window.SetInputMode(glfw.CursorMode, glfw.CursorDisabled)
 	window.SetCursorPosCallback(func(w *glfw.Window, xpos float64, ypos float64) {
 		processMouse(&initialMove, xpos, ypos)
@@ -114,7 +78,7 @@ func render(window *glfw.Window) {
 		deltaTime = float32(currentFrame - lastFrame)
 		lastFrame = currentFrame
 
-		processKeyboard(window, deltaTime)
+		processKeyboardInput(window, deltaTime)
 
 		gl.ClearColor(0.39, 0.39, 0.39, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -123,6 +87,7 @@ func render(window *glfw.Window) {
 		// vertext data wrapped into the plane.
 		gl.UseProgram(program)
 
+		gl.Uniform3f(lightPos, camPos.X(), camPos.Y()+3, camPos.Z())
 		gl.Uniform3f(lightPos, camPos.X(), camPos.Y()+3, camPos.Z())
 		//gl.Uniform3f(lightPos, 0, 10, 15)
 
@@ -202,6 +167,46 @@ func render(window *glfw.Window) {
 	}
 }
 
+func makePlane() uint32 {
+	var plane uint32
+	gl.GenVertexArrays(1, &plane)
+	gl.BindVertexArray(plane)
+	log.Print("Created plane")
+
+	var planeData uint32
+	gl.GenBuffers(1, &planeData)
+	gl.BindBuffer(gl.ARRAY_BUFFER, planeData)
+	gl.BufferData(gl.ARRAY_BUFFER, SizeFloat32*len(models.Plane), gl.Ptr(&models.Plane[3]), gl.STATIC_DRAW)
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, int32(6*SizeFloat32), nil)
+	gl.EnableVertexAttribArray(0)
+	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, int32(6*SizeFloat32), gl.PtrOffset(3*SizeFloat32))
+	gl.EnableVertexAttribArray(1)
+	return plane
+}
+
+func makeCube() uint32 {
+	var cube uint32
+	gl.GenVertexArrays(1, &cube)
+	gl.BindVertexArray(cube)
+	log.Print("Created plane")
+
+	// Send cubeData to GPU memory for later consumption.
+	// Copy our cubeData array (including other data such as colors, texture information)
+	// in a memory buffer for OpenGL to use.
+	var cubeData uint32
+	gl.GenBuffers(1, &cubeData)
+	gl.BindBuffer(gl.ARRAY_BUFFER, cubeData)
+	gl.BufferData(gl.ARRAY_BUFFER, SizeFloat32*len(models.Cube), gl.Ptr(&models.Cube[3]), gl.STATIC_DRAW)
+	log.Print("Created cubeData and stored vertices")
+
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, int32(6*SizeFloat32), nil)
+	gl.EnableVertexAttribArray(0)
+	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, int32(6*SizeFloat32), gl.PtrOffset(3*SizeFloat32))
+	gl.EnableVertexAttribArray(1)
+	log.Print("Bound vertices to location")
+	return cube
+}
+
 func createProgram() uint32 {
 	var program uint32
 	program = gl.CreateProgram()
@@ -224,5 +229,6 @@ func createProgram() uint32 {
 	gl.DeleteShader(vertexShader)
 	gl.DeleteShader(fragmentShader)
 	log.Print("Created program")
+	gl.UseProgram(program)
 	return program
 }
