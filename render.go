@@ -111,7 +111,6 @@ func render(window *glfw.Window) {
 		}
 	})
 
-	// TODO(mlesniak) phone shading?
 	var deltaTime float32 = 0
 	var lastFrame float64 = 0
 
