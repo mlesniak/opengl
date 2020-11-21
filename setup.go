@@ -17,6 +17,7 @@ func initializeWindow() *glfw.Window {
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
 
+	//window, err := glfw.CreateWindow(windowWidth, windowHeight, "Cube", glfw.GetPrimaryMonitor(), nil)
 	window, err := glfw.CreateWindow(windowWidth, windowHeight, "Cube", nil, nil)
 	if err != nil {
 		panic(err)

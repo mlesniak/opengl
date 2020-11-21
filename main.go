@@ -9,10 +9,6 @@ import (
 const windowWidth = 800
 const windowHeight = 600
 
-// TODO(mlesniak) Each object has own color
-// TODO(mlesniak) add diffuse lightning
-// TODO(mlesniak) General refactoring for render loop based on objects
-
 func init() {
 	// GLFW event handling must run on the main OS thread.
 	runtime.LockOSThread()
