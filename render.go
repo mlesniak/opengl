@@ -10,9 +10,6 @@ import (
 	"log"
 )
 
-// TODO(mlesniak) struct
-// TODO(mlesniak) General refactoring for renderLoop loop based on objects
-
 var camPos = mgl32.Vec3{0, 3, 3}
 var camFront = mgl32.Vec3{0, 0, -1}
 var camUp = mgl32.Vec3{0, 1, 0}
