@@ -7,7 +7,28 @@ import (
 	"math"
 )
 
-func processMouse(initialMove *bool, xpos float64, ypos float64) {
+func setupInput(window *glfw.Window) {
+	initialMove := true
+	window.SetInputMode(glfw.CursorMode, glfw.CursorDisabled)
+	window.SetCursorPosCallback(func(w *glfw.Window, xpos float64, ypos float64) {
+		processMouseInput(&initialMove, xpos, ypos)
+	})
+
+	window.SetScrollCallback(func(w *glfw.Window, xoff float64, yoff float64) {
+		processMouseWheelInput(yoff)
+	})
+}
+
+func processMouseWheelInput(yoff float64) {
+	camSpeed := yoff * 0.2
+	camPos = camPos.Add(camUp.Mul(float32(camSpeed)))
+
+	if camPos.Y() <= 0.1 {
+		camPos = mgl32.Vec3{camPos.X(), 0.1, camPos.Z()}
+	}
+}
+
+func processMouseInput(initialMove *bool, xpos float64, ypos float64) {
 	if *initialMove {
 		lastX = xpos
 		lastY = ypos

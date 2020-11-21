@@ -11,7 +11,7 @@ import (
 )
 
 // TODO(mlesniak) struct
-// TODO(mlesniak) General refactoring for render loop based on objects
+// TODO(mlesniak) General refactoring for renderLoop loop based on objects
 
 var camPos = mgl32.Vec3{0, 3, 3}
 var camFront = mgl32.Vec3{0, 0, -1}
@@ -23,12 +23,7 @@ var lastY = float64(windowHeight / 2)
 var yaw = float32(-90.0)
 var pitch = float32(0.0)
 
-// Primitives -> building blocks?
-type Render interface {
-	render(window *glfw.Window)
-}
-
-func render(window *glfw.Window) {
+func renderLoop(window *glfw.Window) {
 	cube := makeCube()
 	plane := makePlane()
 	program := createProgram()
@@ -50,27 +45,8 @@ func render(window *glfw.Window) {
 	colorUniform := gl.GetUniformLocation(program, gl.Str("color\x00"))
 	lightPos := gl.GetUniformLocation(program, gl.Str("lightPos\x00"))
 
-	// Configuration for movement.
-	initialMove := true
-	window.SetInputMode(glfw.CursorMode, glfw.CursorDisabled)
-	window.SetCursorPosCallback(func(w *glfw.Window, xpos float64, ypos float64) {
-		processMouse(&initialMove, xpos, ypos)
-	})
-
-	window.SetScrollCallback(func(w *glfw.Window, xoff float64, yoff float64) {
-		camSpeed := yoff * 0.2
-		camPos = camPos.Add(camUp.Mul(float32(camSpeed)))
-
-		if camPos.Y() <= 0.1 {
-			camPos = mgl32.Vec3{camPos.X(), 0.1, camPos.Z()}
-		}
-	})
-
 	var deltaTime float32 = 0
 	var lastFrame float64 = 0
-
-	var scaleFactor float32 = 1.0
-	down := true
 
 	log.Print("Starting rendering loop")
 	for !window.ShouldClose() {
@@ -83,7 +59,7 @@ func render(window *glfw.Window) {
 		gl.ClearColor(0.39, 0.39, 0.39, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-		// Use our predefined vertex and fragment shaders to render
+		// Use our predefined vertex and fragment shaders to renderLoop
 		// vertext data wrapped into the plane.
 		gl.UseProgram(program)
 
@@ -101,20 +77,8 @@ func render(window *glfw.Window) {
 		gl.Uniform3fv(colorUniform, 1, &models.Cube[0])
 		model = mgl32.Ident4()
 		model = model.Mul4(mgl32.Translate3D(0, 0.5, 0))
-		model = model.Mul4(mgl32.Scale3D(scaleFactor, scaleFactor, scaleFactor))
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Cube)/3))
-		if down {
-			scaleFactor -= 0.01
-			if scaleFactor < 0.1 {
-				down = false
-			}
-		} else {
-			scaleFactor += 0.01
-			if scaleFactor > 1.0 {
-				down = true
-			}
-		}
 
 		model = mgl32.Ident4()
 		model = model.Mul4(mgl32.Translate3D(0, 1.5, 0))
