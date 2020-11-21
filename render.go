@@ -133,6 +133,7 @@ func render(window *glfw.Window) {
 		gl.Uniform3fv(colorUniform, 1, &models.Cube[0])
 		model = mgl32.Ident4()
 		model = model.Mul4(mgl32.Translate3D(0, 0.5, 0))
+		model = model.Mul4(mgl32.Scale3D(0.2, 0.2, 0.2))
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Cube)/3))
 
@@ -148,6 +149,7 @@ func render(window *glfw.Window) {
 
 		model = mgl32.Ident4()
 		model = model.Mul4(mgl32.Translate3D(-1, 2.5, 0))
+		model = model.Mul4(mgl32.Scale3D(0.2, 0.2, 0.2))
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Cube)/3))
 
@@ -163,6 +165,7 @@ func render(window *glfw.Window) {
 
 		model = mgl32.Ident4()
 		model = model.Mul4(mgl32.Translate3D(-2, 1.5, 0))
+		model = model.Mul4(mgl32.Scale3D(0.2, 0.2, 0.2))
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Cube)/3))
 
