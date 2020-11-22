@@ -21,22 +21,9 @@ var lastY = float64(windowHeight / 2)
 var yaw = float32(-90.0)
 var pitch = float32(0.0)
 
-type Entity struct {
-	Vertices   []float32
-	Position   mgl32.Mat4
-	WithNormal bool
-	Color      mgl32.Vec3
-}
-
-var geometries = make([]*Entity, 0)
-
-func AddGeometry(object *Entity) {
-	geometries = append(geometries, object)
-}
-
-func renderLoop(window *glfw.Window, scene Scene) {
-	vaos := make([]uint32, len(geometries))
-	for i, e := range geometries {
+func renderLoop(window *glfw.Window, scene *Scene) {
+	vaos := make([]uint32, len(scene.Entities))
+	for i, e := range scene.Entities {
 		var vaoIndex uint32
 		gl.GenVertexArrays(1, &vaoIndex)
 		gl.BindVertexArray(vaoIndex)
@@ -105,11 +92,11 @@ func renderLoop(window *glfw.Window, scene Scene) {
 		gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
 
 		for i, v := range vaos {
-			g := geometries[i]
+			e := scene.Entities[i]
 			gl.BindVertexArray(v)
-			gl.Uniform4f(colorUniform, g.Color.X(), g.Color.Y(), g.Color.Z(), 1.0)
-			gl.UniformMatrix4fv(modelUniform, 1, false, &geometries[i].Position[0])
-			gl.DrawArrays(gl.TRIANGLES, 0, int32(len(geometries[i].Vertices)/3))
+			gl.Uniform4f(colorUniform, e.Color.X(), e.Color.Y(), e.Color.Z(), 1.0)
+			gl.UniformMatrix4fv(modelUniform, 1, false, &e.Position[0])
+			gl.DrawArrays(gl.TRIANGLES, 0, int32(len(e.Vertices)/3))
 		}
 
 		window.SwapBuffers()

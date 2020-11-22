@@ -16,17 +16,34 @@ func init() {
 	runtime.LockOSThread()
 }
 
+type Entity struct {
+	Vertices   []float32
+	Position   mgl32.Mat4
+	WithNormal bool
+	Color      mgl32.Vec3
+}
+
 type Scene struct {
+	Entities []*Entity
+}
+
+func New() *Scene {
+	return &Scene{}
+}
+
+func (s *Scene) Add(e *Entity) {
+	s.Entities = append(s.Entities, e)
 }
 
 func main() {
 	window := initializeGraphics()
 	setupInput(window)
 
+	scene := New()
+
 	// Procedural generation happens here.
-	scene := createScene()
-	AddGeometry(Cube())
-	AddGeometry(Plane())
+	scene.Add(Cube())
+	scene.Add(Plane())
 
 	renderLoop(window, scene)
 	glfw.Terminate()
