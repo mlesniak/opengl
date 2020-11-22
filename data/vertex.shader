@@ -6,10 +6,10 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-uniform vec3 color;
+uniform vec4 color;
 
 out vec3 FragPos;
-out vec3 objCol;
+out vec4 objCol;
 out vec3 Normal;
 
 void main() {
@@ -18,7 +18,7 @@ void main() {
     ;
 
     gl_Position = projection * view * model * vec4(pos, 1.0);
-    objCol =  vec3(0.1, 0.1, 0.1);
+    objCol =  color;
     // https://learnopengl.com/Lighting/Basic-Lighting
     // In the diffuse lighting section the lighting was fine because we didn't do any scaling
     // on the object, so there was not really a need to use a normal matrix and we could've
