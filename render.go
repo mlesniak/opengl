@@ -11,17 +11,32 @@ import (
 	"log"
 )
 
-var camPos = mgl32.Vec3{0, 3, 3}
-var camFront = mgl32.Vec3{0, 0, -1}
-var camUp = mgl32.Vec3{0, 1, 0}
+type camera struct {
+	position mgl32.Vec3
+	front    mgl32.Vec3
+	up       mgl32.Vec3
+
+	yaw   float32
+	pitch float32
+}
 
 var lastX = float64(windowWidth / 2)
 var lastY = float64(windowHeight / 2)
 
-var yaw = float32(-90.0)
-var pitch = float32(0.0)
+func initializeCamera() *camera {
+	return &camera{
+		position: mgl32.Vec3{0, 3, 3},
+		front:    mgl32.Vec3{0, 0, -1},
+		up:       mgl32.Vec3{0, 1, 0},
+		yaw:      float32(-90.0),
+		pitch:    float32(0.0),
+	}
+}
 
 func renderLoop(window *glfw.Window, scene *Scene) {
+	cam := initializeCamera()
+	setupInput(window, cam)
+
 	vaos := make([]uint32, len(scene.Entities))
 	for i, e := range scene.Entities {
 		var vaoIndex uint32
@@ -55,7 +70,7 @@ func renderLoop(window *glfw.Window, scene *Scene) {
 	model := mgl32.Ident4()
 	gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
-	view := mgl32.LookAtV(camPos, camPos.Add(camFront), camUp)
+	view := mgl32.LookAtV(cam.position, cam.position.Add(cam.front), cam.up)
 	viewUniform := gl.GetUniformLocation(program, gl.Str("view\x00"))
 	gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
 
@@ -63,7 +78,6 @@ func renderLoop(window *glfw.Window, scene *Scene) {
 	projection = projection.Mul4(mgl32.Translate3D(0, 0, -3))
 	projUniform := gl.GetUniformLocation(program, gl.Str("projection\x00"))
 	gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
-	log.Print("Matrices initialized")
 
 	colorUniform := gl.GetUniformLocation(program, gl.Str("color\x00"))
 	lightPos := gl.GetUniformLocation(program, gl.Str("lightPos\x00"))
@@ -71,23 +85,22 @@ func renderLoop(window *glfw.Window, scene *Scene) {
 	var deltaTime float32 = 0
 	var lastFrameTime float64 = 0
 
-	log.Print("Starting rendering loop")
 	for !window.ShouldClose() {
 		currentFrameTime := glfw.GetTime()
 		deltaTime = float32(currentFrameTime - lastFrameTime)
 		lastFrameTime = currentFrameTime
 
-		processKeyboardInput(window, deltaTime)
+		processKeyboardInput(window, deltaTime, cam)
 
 		gl.ClearColor(0.39, 0.39, 0.39, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 		gl.UseProgram(program)
 
-		gl.Uniform3f(lightPos, camPos.X(), camPos.Y()+3, camPos.Z())
+		gl.Uniform3f(lightPos, cam.position.X(), cam.position.Y()+3, cam.position.Z())
 
 		// Update all matrices.
-		view := mgl32.LookAtV(camPos, camPos.Add(camFront), camUp)
+		view := mgl32.LookAtV(cam.position, cam.position.Add(cam.front), cam.up)
 		gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
 		gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
 

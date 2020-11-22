@@ -36,15 +36,13 @@ func (s *Scene) Add(e *Entity) {
 }
 
 func main() {
-	window := initializeGraphics()
-	setupInput(window)
-
+	// Create vertices.
 	scene := New()
-
-	// Procedural generation happens here.
 	scene.Add(Cube())
 	scene.Add(Plane())
 
+	// Display them.
+	window := initializeGraphics()
 	renderLoop(window, scene)
 	glfw.Terminate()
 }

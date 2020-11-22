@@ -7,28 +7,29 @@ import (
 	"math"
 )
 
-func setupInput(window *glfw.Window) {
+func setupInput(window *glfw.Window, cam *camera) {
 	initialMove := true
 	window.SetInputMode(glfw.CursorMode, glfw.CursorDisabled)
+
 	window.SetCursorPosCallback(func(w *glfw.Window, xpos float64, ypos float64) {
-		processMouseInput(&initialMove, xpos, ypos)
+		processMouseInput(&initialMove, cam, xpos, ypos)
 	})
 
 	window.SetScrollCallback(func(w *glfw.Window, xoff float64, yoff float64) {
-		processMouseWheelInput(yoff)
+		processMouseWheelInput(cam, yoff)
 	})
 }
 
-func processMouseWheelInput(yoff float64) {
+func processMouseWheelInput(cam *camera, yoff float64) {
 	camSpeed := yoff * 0.2
-	camPos = camPos.Add(camUp.Mul(float32(camSpeed)))
+	cam.position = cam.position.Add(cam.up.Mul(float32(camSpeed)))
 
-	if camPos.Y() <= 0.1 {
-		camPos = mgl32.Vec3{camPos.X(), 0.1, camPos.Z()}
+	if cam.position.Y() <= 0.1 {
+		cam.position = mgl32.Vec3{cam.position.X(), 0.1, cam.position.Z()}
 	}
 }
 
-func processMouseInput(initialMove *bool, xpos float64, ypos float64) {
+func processMouseInput(initialMove *bool, cam *camera, xpos float64, ypos float64) {
 	if *initialMove {
 		lastX = xpos
 		lastY = ypos
@@ -43,49 +44,50 @@ func processMouseInput(initialMove *bool, xpos float64, ypos float64) {
 	xoffset = xoffset * sensitivity
 	yoffset = yoffset * sensitivity
 
-	yaw += float32(xoffset)
-	pitch -= float32(yoffset)
-	if pitch > 0.1 {
-		pitch = 0.1
+	cam.yaw += float32(xoffset)
+	cam.pitch -= float32(yoffset)
+	if cam.pitch > 0.1 {
+		cam.pitch = 0.1
 	}
-	if pitch < -89 {
-		pitch = -89
+	if cam.pitch < -89 {
+		cam.pitch = -89
 	}
 	v3 := mgl32.Vec3{
-		float32(math.Cos(float64(mgl32.DegToRad(yaw))) * math.Cos(float64(mgl32.DegToRad(pitch)))),
-		float32(math.Sin(float64(mgl32.DegToRad(pitch)))),
-		float32(math.Sin(float64(mgl32.DegToRad(yaw))) * math.Cos(float64(mgl32.DegToRad(pitch)))),
+		float32(math.Cos(float64(mgl32.DegToRad(cam.yaw))) * math.Cos(float64(mgl32.DegToRad(cam.pitch)))),
+		float32(math.Sin(float64(mgl32.DegToRad(cam.pitch)))),
+		float32(math.Sin(float64(mgl32.DegToRad(cam.yaw))) * math.Cos(float64(mgl32.DegToRad(cam.pitch)))),
 	}
-	camFront = v3.Normalize()
+	cam.front = v3.Normalize()
 }
 
-func processKeyboardInput(window *glfw.Window, deltaTime float32) {
+func processKeyboardInput(window *glfw.Window, deltaTime float32, cam *camera) {
 	if window.GetKey(glfw.KeyEscape) == glfw.Press {
 		window.SetShouldClose(true)
 	}
+
 	var camSpeed = 10 * deltaTime
 	if window.GetKey(glfw.KeyW) == glfw.Press {
-		camPos = camPos.Add(camFront.Mul(camSpeed))
+		cam.position = cam.position.Add(cam.front.Mul(camSpeed))
 	}
 	if window.GetKey(glfw.KeyS) == glfw.Press {
-		camPos = camPos.Sub(camFront.Mul(camSpeed))
+		cam.position = cam.position.Sub(cam.front.Mul(camSpeed))
 	}
 	if window.GetKey(glfw.KeyQ) == glfw.Press {
-		camPos = camPos.Add(camUp.Mul(camSpeed))
+		cam.position = cam.position.Add(cam.up.Mul(camSpeed))
 	}
 	if window.GetKey(glfw.KeyX) == glfw.Press {
-		camPos = camPos.Sub(camUp.Mul(camSpeed))
+		cam.position = cam.position.Sub(cam.up.Mul(camSpeed))
 	}
 	if window.GetKey(glfw.KeyA) == glfw.Press {
-		x := camFront.Cross(camUp).Normalize().Mul(camSpeed)
-		camPos = camPos.Sub(x)
+		x := cam.front.Cross(cam.up).Normalize().Mul(camSpeed)
+		cam.position = cam.position.Sub(x)
 	}
 	if window.GetKey(glfw.KeyD) == glfw.Press {
-		x := camFront.Cross(camUp).Normalize().Mul(camSpeed)
-		camPos = camPos.Add(x)
+		x := cam.front.Cross(cam.up).Normalize().Mul(camSpeed)
+		cam.position = cam.position.Add(x)
 	}
 
-	if camPos.Y() <= 0.1 {
-		camPos = mgl32.Vec3{camPos.X(), 0.1, camPos.Z()}
+	if cam.position.Y() <= 0.1 {
+		cam.position = mgl32.Vec3{cam.position.X(), 0.1, cam.position.Z()}
 	}
 }
