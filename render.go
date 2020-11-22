@@ -1,5 +1,7 @@
 package main
 
+// TODO(mlesniak) Move render to own module
+
 import (
 	"github.com/go-gl/gl/all-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -20,13 +22,84 @@ var lastY = float64(windowHeight / 2)
 var yaw = float32(-90.0)
 var pitch = float32(0.0)
 
+type Entity struct {
+	Vertices   []float32
+	Position   mgl32.Mat4
+	WithNormal bool
+	Color      mgl32.Vec4
+}
+
+var geometries = make([]*Entity, 0)
+
+func AddGeometry(object *Entity) {
+	// TODO(mlesniak) Generate object here
+
+	geometries = append(geometries, object)
+}
+
+func Cube() *Entity {
+	//var cube uint32
+	//gl.GenVertexArrays(1, &cube)
+	//gl.BindVertexArray(cube)
+	//log.Print("Created plane")
+	//
+	//// Send cubeData to GPU memory for later consumption.
+	//// Copy our cubeData array (including other data such as colors, texture information)
+	//// in a memory buffer for OpenGL to use.
+	//var cubeData uint32
+	//gl.GenBuffers(1, &cubeData)
+	//gl.BindBuffer(gl.ARRAY_BUFFER, cubeData)
+	//gl.BufferData(gl.ARRAY_BUFFER, SizeFloat32*len(models.CubeVertices), gl.Ptr(&models.CubeVertices[3]), gl.STATIC_DRAW)
+	//log.Print("Created cubeData and stored vertices")
+	//
+	//gl.VertexAttribPointer(0, 3, gl.FLOAT, false, int32(6*SizeFloat32), nil)
+	//gl.EnableVertexAttribArray(0)
+	//gl.VertexAttribPointer(1, 3, gl.FLOAT, false, int32(6*SizeFloat32), gl.PtrOffset(3*SizeFloat32))
+	//gl.EnableVertexAttribArray(1)
+	//log.Print("Bound vertices to location")
+
+	return &Entity{
+		Vertices:   models.CubeVertices,
+		Position:   mgl32.Ident4(),
+		WithNormal: true,
+		Color:      mgl32.Vec4{1, 0, 0, 1},
+	}
+
+}
+
 func renderLoop(window *glfw.Window, scene Scene) {
-	cube := makeCube()
+	//AddGeometry(Cube())
+
+	// Store vaos for geometries.
+	vaos := make([]uint32, len(geometries))
+	for i, e := range geometries {
+		var vaoIndex uint32
+		gl.GenBuffers(1, &vaoIndex)
+		gl.BindBuffer(gl.ARRAY_BUFFER, vaoIndex)
+		gl.BufferData(gl.ARRAY_BUFFER, SizeFloat32*len(e.Vertices), gl.Ptr(&e.Vertices[0]), gl.STATIC_DRAW)
+
+		var stride = 3
+		if e.WithNormal {
+			stride = 6
+		}
+		gl.VertexAttribPointer(0, 3, gl.FLOAT, false, int32(stride*SizeFloat32), nil)
+		gl.EnableVertexAttribArray(0)
+		if e.WithNormal {
+			gl.VertexAttribPointer(1, 3, gl.FLOAT, false, int32(stride*SizeFloat32), gl.PtrOffset(3*SizeFloat32))
+			gl.EnableVertexAttribArray(1)
+		} else {
+			// TODO(mlesniak) Fixed normal value?
+		}
+
+		vaos[i] = vaoIndex
+	}
+
+	//cube := makeCube()
 	plane := makePlane()
 	program := createProgram()
 
-	model := mgl32.Ident4()
 	modelUniform := gl.GetUniformLocation(program, gl.Str("model\x00"))
+	model := mgl32.Ident4()
 	gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
 	view := mgl32.LookAtV(camPos, camPos.Add(camFront), camUp)
@@ -64,14 +137,20 @@ func renderLoop(window *glfw.Window, scene Scene) {
 		gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
-		// TODO(mlesniak) draw objects with type?
+		for i, v := range vaos {
+			g := geometries[i]
+			gl.BindVertexArray(v)
+			gl.Uniform4f(colorUniform, g.Color.X(), g.Color.Y(), g.Color.Z(), g.Color.W())
+			gl.UniformMatrix4fv(modelUniform, 1, false, &geometries[i].Position[0])
+			gl.DrawArrays(gl.TRIANGLES, 0, int32(len(geometries[i].Vertices)/3))
+		}
 
 		gl.BindVertexArray(plane)
 		model = mgl32.HomogRotate3DX(mgl32.DegToRad(-90))
-		model = model.Mul4(mgl32.Scale3D(200, 200, 1))
+		model = model.Mul4(mgl32.Scale3D(20, 20, 1))
 		model = model.Mul4(mgl32.Translate3D(-0.5, -0.5, 0.0))
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
-		gl.Uniform3fv(colorUniform, 1, &models.Plane[0])
+		gl.Uniform4f(colorUniform, 0.2, 0.2, 0.2, 1)
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Plane)/3))
 
 		// Use scene...
@@ -81,65 +160,66 @@ func renderLoop(window *glfw.Window, scene Scene) {
 		// color is ignored for now.
 		//
 		// primitives are loaded using vaos.
+		//		must vaos be initialized for each TYPE before?
 		// object describes type, position, scale
 
-		gl.BindVertexArray(cube)
-		gl.Uniform3fv(colorUniform, 1, &models.Cube[0])
-		model = mgl32.Ident4()
-		model = model.Mul4(mgl32.Translate3D(0, 0.5, 0))
-		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
-		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Cube)/3))
-
-		gl.BindVertexArray(cube)
-		gl.Uniform3fv(colorUniform, 1, &models.Cube[0])
-		model = mgl32.Ident4()
-		model = model.Mul4(mgl32.Translate3D(0, 1.5, 0))
-		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
-		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Cube)/3))
-
-		gl.BindVertexArray(cube)
-		gl.Uniform3fv(colorUniform, 1, &models.Cube[0])
-		model = mgl32.Ident4()
-		model = model.Mul4(mgl32.Translate3D(0, 2.5, 0))
-		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
-		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Cube)/3))
-
-		gl.BindVertexArray(cube)
-		gl.Uniform3fv(colorUniform, 1, &models.Cube[0])
-		model = mgl32.Ident4()
-		model = model.Mul4(mgl32.Translate3D(-1, 2.5, 0))
-		model = model.Mul4(mgl32.Scale3D(0.2, 0.2, 0.2))
-		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
-		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Cube)/3))
-
-		gl.BindVertexArray(cube)
-		gl.Uniform3fv(colorUniform, 1, &models.Cube[0])
-		model = mgl32.Ident4()
-		model = model.Mul4(mgl32.Translate3D(-2, 2.5, 0))
-		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
-		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Cube)/3))
-
-		gl.BindVertexArray(cube)
-		gl.Uniform3fv(colorUniform, 1, &models.Cube[0])
-		model = mgl32.Ident4()
-		model = model.Mul4(mgl32.Translate3D(-2, 0.5, 0))
-		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
-		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Cube)/3))
-
-		gl.BindVertexArray(cube)
-		gl.Uniform3fv(colorUniform, 1, &models.Cube[0])
-		model = mgl32.Ident4()
-		model = model.Mul4(mgl32.Translate3D(-2, 1.5, 0))
-		model = model.Mul4(mgl32.Scale3D(0.2, 0.2, 0.2))
-		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
-		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Cube)/3))
-
-		gl.BindVertexArray(cube)
-		gl.Uniform3fv(colorUniform, 1, &models.Cube[0])
-		model = mgl32.Ident4()
-		model = model.Mul4(mgl32.Translate3D(-2, 2.5, 0))
-		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
-		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.Cube)/3))
+		//gl.BindVertexArray(cube)
+		//gl.Uniform3fv(colorUniform, 1, &models.CubeVertices[0])
+		//model = mgl32.Ident4()
+		//model = model.Mul4(mgl32.Translate3D(0, 0.5, 0))
+		//gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
+		//gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.CubeVertices)/3))
+		//
+		//gl.BindVertexArray(cube)
+		//gl.Uniform3fv(colorUniform, 1, &models.CubeVertices[0])
+		//model = mgl32.Ident4()
+		//model = model.Mul4(mgl32.Translate3D(0, 1.5, 0))
+		//gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
+		//gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.CubeVertices)/3))
+		//
+		//gl.BindVertexArray(cube)
+		//gl.Uniform3fv(colorUniform, 1, &models.CubeVertices[0])
+		//model = mgl32.Ident4()
+		//model = model.Mul4(mgl32.Translate3D(0, 2.5, 0))
+		//gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
+		//gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.CubeVertices)/3))
+		//
+		//gl.BindVertexArray(cube)
+		//gl.Uniform3fv(colorUniform, 1, &models.CubeVertices[0])
+		//model = mgl32.Ident4()
+		//model = model.Mul4(mgl32.Translate3D(-1, 2.5, 0))
+		//model = model.Mul4(mgl32.Scale3D(0.2, 0.2, 0.2))
+		//gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
+		//gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.CubeVertices)/3))
+		//
+		//gl.BindVertexArray(cube)
+		//gl.Uniform3fv(colorUniform, 1, &models.CubeVertices[0])
+		//model = mgl32.Ident4()
+		//model = model.Mul4(mgl32.Translate3D(-2, 2.5, 0))
+		//gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
+		//gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.CubeVertices)/3))
+		//
+		//gl.BindVertexArray(cube)
+		//gl.Uniform3fv(colorUniform, 1, &models.CubeVertices[0])
+		//model = mgl32.Ident4()
+		//model = model.Mul4(mgl32.Translate3D(-2, 0.5, 0))
+		//gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
+		//gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.CubeVertices)/3))
+		//
+		//gl.BindVertexArray(cube)
+		//gl.Uniform3fv(colorUniform, 1, &models.CubeVertices[0])
+		//model = mgl32.Ident4()
+		//model = model.Mul4(mgl32.Translate3D(-2, 1.5, 0))
+		//model = model.Mul4(mgl32.Scale3D(0.2, 0.2, 0.2))
+		//gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
+		//gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.CubeVertices)/3))
+		//
+		//gl.BindVertexArray(cube)
+		//gl.Uniform3fv(colorUniform, 1, &models.CubeVertices[0])
+		//model = mgl32.Ident4()
+		//model = model.Mul4(mgl32.Translate3D(-2, 2.5, 0))
+		//gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
+		//gl.DrawArrays(gl.TRIANGLES, 0, int32(len(models.CubeVertices)/3))
 
 		window.SwapBuffers()
 		glfw.PollEvents()
@@ -175,7 +255,7 @@ func makeCube() uint32 {
 	var cubeData uint32
 	gl.GenBuffers(1, &cubeData)
 	gl.BindBuffer(gl.ARRAY_BUFFER, cubeData)
-	gl.BufferData(gl.ARRAY_BUFFER, SizeFloat32*len(models.Cube), gl.Ptr(&models.Cube[3]), gl.STATIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, SizeFloat32*len(models.CubeVertices), gl.Ptr(&models.CubeVertices[3]), gl.STATIC_DRAW)
 	log.Print("Created cubeData and stored vertices")
 
 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, int32(6*SizeFloat32), nil)

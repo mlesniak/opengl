@@ -15,8 +15,10 @@ out vec3 Normal;
 void main() {
     vec4 x;
 
+    ;
+
     gl_Position = projection * view * model * vec4(pos, 1.0);
-    objCol = color;
+    objCol =  vec3(0.1, 0.1, 0.1);
     // https://learnopengl.com/Lighting/Basic-Lighting
     // In the diffuse lighting section the lighting was fine because we didn't do any scaling
     // on the object, so there was not really a need to use a normal matrix and we could've

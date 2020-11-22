@@ -1,9 +1,6 @@
 package model
 
-var Cube = []float32{
-	// Color.
-	+1.0, 0.0, 0.0,
-
+var CubeVertices = []float32{
 	// Vertices.
 	-0.5, -0.5, -0.5, +0.0, +0.0, -1.0,
 	0.5, -0.5, -0.5, +0.0, +0.0, -1.0,
