@@ -7,6 +7,9 @@ import (
 	"math"
 )
 
+var lastX = float64(windowWidth / 2)
+var lastY = float64(windowHeight / 2)
+
 func setupInput(window *glfw.Window, cam *camera) {
 	initialMove := true
 	window.SetInputMode(glfw.CursorMode, glfw.CursorDisabled)

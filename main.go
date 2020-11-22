@@ -3,7 +3,8 @@ package main
 import (
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/go-gl/mathgl/mgl32"
-	models "github.com/mlesniak/opengl/model"
+	"github.com/mlesniak/opengl/model"
+	"github.com/mlesniak/opengl/scene"
 	_ "image/png"
 	"runtime"
 )
@@ -16,58 +17,36 @@ func init() {
 	runtime.LockOSThread()
 }
 
-type Entity struct {
-	Vertices   []float32
-	Position   mgl32.Mat4
-	WithNormal bool
-	Color      mgl32.Vec3
-}
-
-type Scene struct {
-	Entities []*Entity
-}
-
-func New() *Scene {
-	return &Scene{}
-}
-
-func (s *Scene) Add(e *Entity) {
-	s.Entities = append(s.Entities, e)
-}
-
 func main() {
 	// Create vertices.
-	scene := New()
-	scene.Add(Cube())
-	scene.Add(Plane())
+	s := scene.New()
+	s.Add(Cube())
+	s.Add(Plane())
 
 	// Display them.
+	// TODO(mlesniak) Display object with new(windows, scene) instead of call to Render()
 	window := initializeGraphics()
-	renderLoop(window, scene)
+	Render(window, s)
 	glfw.Terminate()
 }
 
-func createScene() Scene {
-	return Scene{}
-}
-
-func Cube() *Entity {
-	return &Entity{
-		Vertices:   models.CubeVertices,
+func Cube() *scene.Entity {
+	return &scene.Entity{
+		Vertices:   model.CubeVertices,
 		Position:   mgl32.Translate3D(+0.5, +0.5, 0),
 		WithNormal: true,
 		Color:      mgl32.Vec3{1, 0, 0},
 	}
 }
 
-func Plane() *Entity {
-	model := mgl32.HomogRotate3DX(mgl32.DegToRad(-90))
-	model = model.Mul4(mgl32.Scale3D(20, 20, 1))
-	model = model.Mul4(mgl32.Translate3D(-0.5, -0.5, 0.0))
+func Plane() *scene.Entity {
+	m := mgl32.HomogRotate3DX(mgl32.DegToRad(-90))
+	m = m.Mul4(mgl32.Scale3D(20, 20, 1))
+	m = m.Mul4(mgl32.Translate3D(-0.5, -0.5, 0.0))
 
-	return &Entity{
-		Vertices:   models.Plane,
-		Position:   model,
+	return &scene.Entity{
+		Vertices:   model.Plane,
+		Position:   m,
 		WithNormal: true,
 		Color:      mgl32.Vec3{0.29, 0.29, 0.29},
 	}

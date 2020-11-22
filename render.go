@@ -1,11 +1,12 @@
 package main
 
-// TODO(mlesniak) Move render to own module
+// TODO(mlesniak) Move Render to own module
 
 import (
 	"github.com/go-gl/gl/all-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/mlesniak/opengl/scene"
 	"github.com/mlesniak/opengl/shader"
 	_ "image/png"
 	"log"
@@ -20,9 +21,6 @@ type camera struct {
 	pitch float32
 }
 
-var lastX = float64(windowWidth / 2)
-var lastY = float64(windowHeight / 2)
-
 func initializeCamera() *camera {
 	return &camera{
 		position: mgl32.Vec3{0, 3, 3},
@@ -33,7 +31,7 @@ func initializeCamera() *camera {
 	}
 }
 
-func renderLoop(window *glfw.Window, scene *Scene) {
+func Render(window *glfw.Window, scene *scene.Scene) {
 	cam := initializeCamera()
 	setupInput(window, cam)
 
