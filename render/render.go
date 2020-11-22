@@ -1,4 +1,4 @@
-package main
+package render
 
 // TODO(mlesniak) Move Render to own module
 
@@ -10,7 +10,16 @@ import (
 	"github.com/mlesniak/opengl/shader"
 	_ "image/png"
 	"log"
+	"runtime"
 )
+
+type render struct {
+	width  int
+	height int
+	camera *camera
+
+	window *glfw.Window
+}
 
 type camera struct {
 	position mgl32.Vec3
@@ -19,6 +28,25 @@ type camera struct {
 
 	yaw   float32
 	pitch float32
+}
+
+func init() {
+	// GLFW event handling must run on the main OS thread.
+	runtime.LockOSThread()
+}
+
+func New(width, height int) *render {
+	window := initializeGraphics(width, height)
+	camera := initializeCamera()
+	r := &render{
+		width:  width,
+		height: height,
+		camera: camera,
+		window: window,
+	}
+
+	r.setupInput()
+	return r
 }
 
 func initializeCamera() *camera {
@@ -31,10 +59,11 @@ func initializeCamera() *camera {
 	}
 }
 
-func Render(window *glfw.Window, scene *scene.Scene) {
-	cam := initializeCamera()
-	setupInput(window, cam)
+func (r *render) Exit() {
+	glfw.Terminate()
+}
 
+func (r *render) Render(scene *scene.Scene) {
 	vaos := make([]uint32, len(scene.Entities))
 	for i, e := range scene.Entities {
 		var vaoIndex uint32
@@ -68,11 +97,11 @@ func Render(window *glfw.Window, scene *scene.Scene) {
 	model := mgl32.Ident4()
 	gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
-	view := mgl32.LookAtV(cam.position, cam.position.Add(cam.front), cam.up)
+	view := mgl32.LookAtV(r.camera.position, r.camera.position.Add(r.camera.front), r.camera.up)
 	viewUniform := gl.GetUniformLocation(program, gl.Str("view\x00"))
 	gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
 
-	projection := mgl32.Perspective(mgl32.DegToRad(60), windowWidth/float32(windowHeight), 0.1, 1000)
+	projection := mgl32.Perspective(mgl32.DegToRad(60), float32(r.width)/float32(r.height), 0.1, 1000)
 	projection = projection.Mul4(mgl32.Translate3D(0, 0, -3))
 	projUniform := gl.GetUniformLocation(program, gl.Str("projection\x00"))
 	gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
@@ -83,22 +112,22 @@ func Render(window *glfw.Window, scene *scene.Scene) {
 	var deltaTime float32 = 0
 	var lastFrameTime float64 = 0
 
-	for !window.ShouldClose() {
+	for !r.window.ShouldClose() {
 		currentFrameTime := glfw.GetTime()
 		deltaTime = float32(currentFrameTime - lastFrameTime)
 		lastFrameTime = currentFrameTime
 
-		processKeyboardInput(window, deltaTime, cam)
+		r.processKeyboardInput(r.window, deltaTime, r.camera)
 
 		gl.ClearColor(0.39, 0.39, 0.39, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 		gl.UseProgram(program)
 
-		gl.Uniform3f(lightPos, cam.position.X(), cam.position.Y()+3, cam.position.Z())
+		gl.Uniform3f(lightPos, r.camera.position.X(), r.camera.position.Y()+3, r.camera.position.Z())
 
 		// Update all matrices.
-		view := mgl32.LookAtV(cam.position, cam.position.Add(cam.front), cam.up)
+		view := mgl32.LookAtV(r.camera.position, r.camera.position.Add(r.camera.front), r.camera.up)
 		gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
 		gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
 
@@ -110,7 +139,7 @@ func Render(window *glfw.Window, scene *scene.Scene) {
 			gl.DrawArrays(gl.TRIANGLES, 0, int32(len(e.Vertices)/3))
 		}
 
-		window.SwapBuffers()
+		r.window.SwapBuffers()
 		glfw.PollEvents()
 	}
 }

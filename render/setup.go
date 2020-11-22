@@ -1,4 +1,4 @@
-package main
+package render
 
 import (
 	"github.com/go-gl/gl/all-core/gl"
@@ -6,7 +6,7 @@ import (
 	"log"
 )
 
-func initializeGraphics() *glfw.Window {
+func initializeGraphics(width, height int) *glfw.Window {
 	if err := glfw.Init(); err != nil {
 		log.Fatalln("failed to initializeGraphics glfw:", err)
 	}
@@ -18,7 +18,7 @@ func initializeGraphics() *glfw.Window {
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
 	glfw.WindowHint(glfw.Samples, 4) // MFAA / Antialiasing
 
-	window, err := glfw.CreateWindow(windowWidth, windowHeight, "Cube", nil, nil)
+	window, err := glfw.CreateWindow(width, height, "Cube", nil, nil)
 	if err != nil {
 		panic(err)
 	}
