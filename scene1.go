@@ -5,52 +5,39 @@ import (
 	"github.com/mlesniak/opengl/model"
 	"github.com/mlesniak/opengl/scene"
 	"math/rand"
+	"time"
 )
 
+// TODO(mlesniak) How can I use scenes to create other scenes?
+// TODO(mlesniak) Add a scene means applying the matrix to everything?
+
 func Scene1() *scene.Scene {
+	rand.Seed(time.Now().UnixNano())
 	s := scene.New()
-	s.Add(Cube())
-	s.Add(Cube2())
-	s.Add(Random(20))
+	s.Add(Base())
+	s.Add(Cross())
 	return s
 }
 
-func Cube() *scene.Entity {
+func Base() *scene.Entity {
 	return &scene.Entity{
-		Vertices:   model.CubeVertices,
-		Position:   mgl32.Translate3D(+0.5, +0.5, 0).Mul4(mgl32.Scale3D(0.2, 5, 1)),
+		Vertices: model.CubeVertices,
+		Position: mgl32.Ident4().
+			Mul4(mgl32.Scale3D(4, 1, 1)).
+			Mul4(mgl32.Translate3D(0, 0.5, 0)),
 		WithNormal: true,
 		Color:      mgl32.Vec3{1, 0, 0},
 	}
 }
 
-func Cube2() *scene.Entity {
+func Cross() *scene.Entity {
 	return &scene.Entity{
-		Vertices:   model.CubeVertices,
-		Position:   mgl32.Translate3D(+1, +0.5, 0),
+		Vertices: model.CubeVertices,
+		Position: mgl32.Ident4().
+			Mul4(mgl32.HomogRotate3DY(mgl32.DegToRad(-90))).
+			Mul4(mgl32.Scale3D(4, 1, 1)).
+			Mul4(mgl32.Translate3D(0, 0.5, -1)),
 		WithNormal: true,
 		Color:      mgl32.Vec3{1, 0, 0},
-	}
-}
-
-func Random(triangles int) *scene.Entity {
-	vs := make([]float32, triangles*9+9)
-	for i := 0; i < triangles*9; i++ {
-		vs[i+0] = rand.Float32() * 10
-		vs[i+1] = rand.Float32() * 10
-		vs[i+2] = rand.Float32() * 10
-		vs[i+3] = rand.Float32() * 10
-		vs[i+4] = rand.Float32() * 10
-		vs[i+5] = rand.Float32() * 10
-		vs[i+6] = rand.Float32() * 10
-		vs[i+7] = rand.Float32() * 10
-		vs[i+8] = rand.Float32() * 10
-	}
-
-	return &scene.Entity{
-		Vertices:   vs,
-		Position:   mgl32.Translate3D(-10, 0, -10),
-		WithNormal: false,
-		Color:      mgl32.Vec3{1, 1, 0},
 	}
 }
