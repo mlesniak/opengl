@@ -9,9 +9,9 @@ import (
 
 func Scene1() *scene.Scene {
 	s := scene.New()
-	//s.Add(Cube())
-	//s.Add(Cube2())
-	s.Add(Random(10))
+	s.Add(Cube())
+	s.Add(Cube2())
+	s.Add(Random(20))
 	return s
 }
 
@@ -49,7 +49,7 @@ func Random(triangles int) *scene.Entity {
 
 	return &scene.Entity{
 		Vertices:   vs,
-		Position:   mgl32.Translate3D(-5, -5, 0),
+		Position:   mgl32.Translate3D(-10, 0, -10),
 		WithNormal: false,
 		Color:      mgl32.Vec3{1, 1, 0},
 	}
