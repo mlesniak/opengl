@@ -84,9 +84,7 @@ func (r *render) Render(scene *scene.Scene) {
 			gl.VertexAttribPointer(1, 3, gl.FLOAT, false, int32(stride*SizeFloat32), gl.PtrOffset(3*SizeFloat32))
 			gl.EnableVertexAttribArray(1)
 		} else {
-			// TODO(mlesniak) Fixed normal value?
 			gl.VertexAttrib3f(1, 1, 1, 1)
-			//gl.EnableVertexAttribArray(1)
 		}
 
 		vaos[i] = vaoIndex
