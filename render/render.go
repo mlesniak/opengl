@@ -1,7 +1,5 @@
 package render
 
-// TODO(mlesniak) Move Render to own module
-
 import (
 	"github.com/go-gl/gl/all-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -19,6 +17,7 @@ type render struct {
 	camera *camera
 
 	window *glfw.Window
+	input  *input
 }
 
 type camera struct {
@@ -45,7 +44,7 @@ func New(width, height int) *render {
 		window: window,
 	}
 
-	r.setupInput()
+	r.input = setupInput(r)
 	return r
 }
 
@@ -86,6 +85,8 @@ func (r *render) Render(scene *scene.Scene) {
 			gl.EnableVertexAttribArray(1)
 		} else {
 			// TODO(mlesniak) Fixed normal value?
+			gl.VertexAttrib3f(1, 1, 1, 1)
+			//gl.EnableVertexAttribArray(1)
 		}
 
 		vaos[i] = vaoIndex
@@ -117,14 +118,15 @@ func (r *render) Render(scene *scene.Scene) {
 		deltaTime = float32(currentFrameTime - lastFrameTime)
 		lastFrameTime = currentFrameTime
 
-		r.processKeyboardInput(r.window, deltaTime, r.camera)
+		r.input.processKeyboardInput(r.window, deltaTime, r.camera)
 
 		gl.ClearColor(0.39, 0.39, 0.39, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 		gl.UseProgram(program)
 
-		gl.Uniform3f(lightPos, r.camera.position.X(), r.camera.position.Y()+3, r.camera.position.Z())
+		gl.Uniform3f(lightPos, -2, 6, -1)
+		//gl.Uniform3f(lightPos, r.camera.position.X(), r.camera.position.Y()+3, r.camera.position.Z())
 
 		// Update all matrices.
 		view := mgl32.LookAtV(r.camera.position, r.camera.position.Add(r.camera.front), r.camera.up)
