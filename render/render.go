@@ -62,33 +62,9 @@ func (r *render) Exit() {
 	glfw.Terminate()
 }
 
-func (r *render) Render(scene *scene.Scene) {
-	vaos := make([]uint32, len(scene.Entities))
-	for i, e := range scene.Entities {
-		var vaoIndex uint32
-		gl.GenVertexArrays(1, &vaoIndex)
-		gl.BindVertexArray(vaoIndex)
-
-		var vaoData uint32
-		gl.GenBuffers(1, &vaoData)
-		gl.BindBuffer(gl.ARRAY_BUFFER, vaoData)
-		gl.BufferData(gl.ARRAY_BUFFER, SizeFloat32*len(e.Vertices), gl.Ptr(e.Vertices), gl.STATIC_DRAW)
-
-		var stride = 3
-		if e.WithNormal {
-			stride = 6
-		}
-		gl.VertexAttribPointer(0, 3, gl.FLOAT, false, int32(stride*SizeFloat32), nil)
-		gl.EnableVertexAttribArray(0)
-		if e.WithNormal {
-			gl.VertexAttribPointer(1, 3, gl.FLOAT, false, int32(stride*SizeFloat32), gl.PtrOffset(3*SizeFloat32))
-			gl.EnableVertexAttribArray(1)
-		} else {
-			gl.VertexAttrib3f(1, 1, 1, 1)
-		}
-
-		vaos[i] = vaoIndex
-	}
+func (r *render) Render(sc *scene.Scene) {
+	vaos := make(map[*scene.Entity]uint32)
+	r.createVaos(sc.Entities, vaos)
 
 	program := createProgram()
 
@@ -131,9 +107,8 @@ func (r *render) Render(scene *scene.Scene) {
 		gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
 		gl.UniformMatrix4fv(projUniform, 1, false, &projection[0])
 
-		for i, v := range vaos {
-			e := scene.Entities[i]
-			gl.BindVertexArray(v)
+		for e, vao := range vaos {
+			gl.BindVertexArray(vao)
 			gl.Uniform4f(colorUniform, e.Color.X(), e.Color.Y(), e.Color.Z(), 1.0)
 			gl.UniformMatrix4fv(modelUniform, 1, false, &e.Model[0])
 			gl.DrawArrays(gl.TRIANGLES, 0, int32(len(e.Vertices)/3))
@@ -141,6 +116,37 @@ func (r *render) Render(scene *scene.Scene) {
 
 		r.window.SwapBuffers()
 		glfw.PollEvents()
+	}
+}
+
+func (r *render) createVaos(sc []*scene.Entity, vaos map[*scene.Entity]uint32) {
+	for _, e := range sc {
+		var vaoIndex uint32
+		gl.GenVertexArrays(1, &vaoIndex)
+		gl.BindVertexArray(vaoIndex)
+
+		var vaoData uint32
+		gl.GenBuffers(1, &vaoData)
+		gl.BindBuffer(gl.ARRAY_BUFFER, vaoData)
+		gl.BufferData(gl.ARRAY_BUFFER, SizeFloat32*len(e.Vertices), gl.Ptr(e.Vertices), gl.STATIC_DRAW)
+
+		var stride = 3
+		if e.WithNormal {
+			stride = 6
+		}
+		gl.VertexAttribPointer(0, 3, gl.FLOAT, false, int32(stride*SizeFloat32), nil)
+		gl.EnableVertexAttribArray(0)
+		if e.WithNormal {
+			gl.VertexAttribPointer(1, 3, gl.FLOAT, false, int32(stride*SizeFloat32), gl.PtrOffset(3*SizeFloat32))
+			gl.EnableVertexAttribArray(1)
+		} else {
+			gl.VertexAttrib3f(1, 1, 1, 1)
+		}
+		vaos[e] = vaoIndex
+
+		//for _, c := range e.Children {
+		r.createVaos(e.Children, vaos)
+		//}
 	}
 }
 

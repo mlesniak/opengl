@@ -25,7 +25,7 @@ func Top(parent *scene.Entity) *scene.Entity {
 	m := mgl32.Ident4().
 		Mul4(mgl32.Translate3D(
 			parent.Parameter["center.x"],
-			parent.Parameter["center.y"]+1,
+			parent.Parameter["center.y"]+2,
 			parent.Parameter["center.z"]))
 
 	return &scene.Entity{
@@ -42,9 +42,10 @@ func Top(parent *scene.Entity) *scene.Entity {
 func Base() *scene.Entity {
 	params := make(map[string]float32)
 
-	m := mgl32.Ident4().Mul4(mgl32.Translate3D(0, 1, 0))
+	m := mgl32.Ident4().Mul4(mgl32.Translate3D(-3, 1, 0))
 
-	c := m.Mul4x1(mgl32.Vec4{0, 0, 0, 1})
+	originalCenter := mgl32.Vec4{0, 0, 0, 1}
+	c := m.Mul4x1(originalCenter)
 	params["center.x"] = c.X()
 	params["center.y"] = c.Y()
 	params["center.z"] = c.Z()
