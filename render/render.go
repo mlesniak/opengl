@@ -135,7 +135,7 @@ func (r *render) Render(scene *scene.Scene) {
 			e := scene.Entities[i]
 			gl.BindVertexArray(v)
 			gl.Uniform4f(colorUniform, e.Color.X(), e.Color.Y(), e.Color.Z(), 1.0)
-			gl.UniformMatrix4fv(modelUniform, 1, false, &e.Position[0])
+			gl.UniformMatrix4fv(modelUniform, 1, false, &e.Model[0])
 			gl.DrawArrays(gl.TRIANGLES, 0, int32(len(e.Vertices)/3))
 		}
 

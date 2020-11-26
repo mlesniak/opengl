@@ -4,39 +4,57 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/mlesniak/opengl/model"
 	"github.com/mlesniak/opengl/scene"
-	"math/rand"
 	"time"
 )
 
-// TODO(mlesniak) How can I use scenes to create other scenes?
-// TODO(mlesniak) Add a scene means applying the matrix to everything?
+// TODO(mlesniak) Expect center automatically?
 
 func Scene1() *scene.Scene {
-	rand.Seed(time.Now().UnixNano())
-	s := scene.New()
-	s.Add(Base())
-	s.Add(Cross())
+	s := scene.New(time.Now().UnixNano())
+	base := Base()
+	base.Add(Top(base))
+
+	s.Add(base)
 	return s
 }
 
-func Base() *scene.Entity {
+func Top(parent *scene.Entity) *scene.Entity {
+	// TODO(mlesniak) render this
+	params := make(map[string]float32)
+
+	m := mgl32.Ident4().
+		Mul4(mgl32.Translate3D(
+			parent.Parameter["center.x"],
+			parent.Parameter["center.y"]+1,
+			parent.Parameter["center.z"]))
+
 	return &scene.Entity{
-		Vertices: model.CubeVertices,
-		Position: mgl32.Ident4().
-			Mul4(mgl32.Scale3D(4, 1, 1)).
-			Mul4(mgl32.Translate3D(0, 0.5, 0)),
+		Name:      "Base",
+		Parameter: params,
+
+		Model:      m,
+		Vertices:   model.CubeVertices,
 		WithNormal: true,
 		Color:      mgl32.Vec3{1, 0, 0},
 	}
 }
 
-func Cross() *scene.Entity {
+func Base() *scene.Entity {
+	params := make(map[string]float32)
+
+	m := mgl32.Ident4().Mul4(mgl32.Translate3D(0, 1, 0))
+
+	c := m.Mul4x1(mgl32.Vec4{0, 0, 0, 1})
+	params["center.x"] = c.X()
+	params["center.y"] = c.Y()
+	params["center.z"] = c.Z()
+
 	return &scene.Entity{
-		Vertices: model.CubeVertices,
-		Position: mgl32.Ident4().
-			Mul4(mgl32.HomogRotate3DY(mgl32.DegToRad(-90))).
-			Mul4(mgl32.Scale3D(4, 1, 1)).
-			Mul4(mgl32.Translate3D(0, 0.5, -1)),
+		Name:      "Base",
+		Parameter: params,
+
+		Model:      m,
+		Vertices:   model.CubeVertices,
 		WithNormal: true,
 		Color:      mgl32.Vec3{1, 0, 0},
 	}

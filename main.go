@@ -25,7 +25,7 @@ func Plane() *scene.Entity {
 
 	return &scene.Entity{
 		Vertices:   model.Plane,
-		Position:   m,
+		Model:      m,
 		WithNormal: true,
 		Color:      mgl32.Vec3{0.29, 0.29, 0.29},
 	}
