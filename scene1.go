@@ -20,9 +20,9 @@ func Scene1() *scene.Scene {
 func Base() *scene.Entity {
 	params := make(map[string]interface{})
 
-	x := rand.Float32() * 3
-	y := rand.Float32() * 3
-	z := rand.Float32() * 3
+	x := rand.Float32() * 5
+	y := rand.Float32() * 5
+	z := rand.Float32() * 5
 	params["scale.x"] = x
 	params["scale.y"] = y
 	params["scale.z"] = z
