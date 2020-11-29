@@ -93,10 +93,10 @@ func (i *input) processKeyboardInput(window *glfw.Window, deltaTime float32, cam
 	}
 
 	// Increase speed the farther away we are from the center.
-	distToCenter := cam.position.Sub(mgl32.Vec3{0, 0, 0}).Len()
-	centerFactor := distToCenter * 0.2
+	//distToCenter := cam.position.Sub(mgl32.Vec3{0, 0, 0}).Len()
+	//centerFactor := distToCenter*distToCenter * 0.0
 
-	var camSpeed = 10 * deltaTime * centerFactor
+	var camSpeed = 10 * deltaTime
 	if window.GetKey(glfw.KeyW) == glfw.Press {
 		cam.position = cam.position.Add(cam.front.Mul(camSpeed))
 	}
