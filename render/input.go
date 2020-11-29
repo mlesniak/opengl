@@ -60,8 +60,8 @@ func (i *input) processMouseInput(initialMove *bool, lastX *float64, lastY *floa
 
 	i.render.camera.yaw += float32(xoffset)
 	i.render.camera.pitch -= float32(yoffset)
-	if i.render.camera.pitch > 0.1 {
-		i.render.camera.pitch = 0.1
+	if i.render.camera.pitch > 90 {
+		i.render.camera.pitch = 90
 	}
 	if i.render.camera.pitch < -89 {
 		i.render.camera.pitch = -89
