@@ -11,31 +11,24 @@ import (
 func Scene1() *scene.Scene {
 	seed := time.Now().UnixNano()
 	s := scene.New(seed)
-	for i := 0; i < 20; i++ {
-		addEntities(s)
-	}
+	s.Add(Base())
 	return s
-}
-
-func addEntities(s *scene.Scene) {
-	base := Base()
-	s.Add(base)
 }
 
 func Base() *scene.Entity {
 	params := make(map[string]interface{})
 
-	x := rand.Float32() * 5
-	y := rand.Float32() * 5
-	z := rand.Float32() * 5
-	params["scale.x"] = x
-	params["scale.y"] = y
-	params["scale.z"] = z
-	scaleMatrix := mgl32.Scale3D(x, y, z)
+	params["scale.x"] = rand.Float32() * 5
+	params["scale.y"] = rand.Float32() * 5
+	params["scale.z"] = rand.Float32() * 5
+	scaleMatrix := mgl32.Scale3D(
+		params["scale.x"].(float32),
+		params["scale.y"].(float32),
+		params["scale.z"].(float32))
 
-	px := rand.Float32()*10 - 5
-	py := rand.Float32()*5 + 0.5
-	pz := rand.Float32()*10 - 5
+	px := float32(0)
+	py := float32(0.5)
+	pz := float32(0)
 	params["position.x"] = px
 	params["position.y"] = py
 	params["position.z"] = pz
