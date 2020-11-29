@@ -9,12 +9,17 @@ import (
 )
 
 func Scene1() *scene.Scene {
-	s := scene.New(time.Now().UnixNano())
-
-	base := Base()
-
-	s.Add(base)
+	seed := time.Now().UnixNano()
+	s := scene.New(seed)
+	for i := 0; i < 20; i++ {
+		addEntities(s)
+	}
 	return s
+}
+
+func addEntities(s *scene.Scene) {
+	base := Base()
+	s.Add(base)
 }
 
 func Base() *scene.Entity {
@@ -28,10 +33,18 @@ func Base() *scene.Entity {
 	params["scale.z"] = z
 	scaleMatrix := mgl32.Scale3D(x, y, z)
 
+	px := rand.Float32()*10 - 5
+	py := rand.Float32()*5 + 0.5
+	pz := rand.Float32()*10 - 5
+	params["position.x"] = px
+	params["position.y"] = py
+	params["position.z"] = pz
+	positionMatrix := mgl32.Translate3D(px, py, pz)
+
 	center := mgl32.Vec4{0, 0, 0, 1}
 	m := mgl32.Ident4().
 		Mul4(scaleMatrix).
-		Mul4(mgl32.Translate3D(0, 0.5, 0))
+		Mul4(positionMatrix)
 
 	params["center"] = m.Mul4x1(center)
 
